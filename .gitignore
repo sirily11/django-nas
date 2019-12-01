@@ -1,0 +1,5 @@
+media
+templates
+*.sqlite3
+*.pyc
+.idea
