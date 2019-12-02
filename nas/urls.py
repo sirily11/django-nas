@@ -1,4 +1,4 @@
-from django.urls import include, path
+from django.urls import include, path, re_path
 from rest_framework import routers
 from . import views
 
@@ -9,5 +9,8 @@ router.register(r'user', views.UserViewSet,  base_name="users")
 
 
 urlpatterns = [
-    path('', include(router.urls)),
+    path('api/', include(router.urls), name='api'),
+    path('', views.index, name="home"),
+    path(r'<int:pk>', views.detail, name="detail"),
+    path('upload/', views.upload, name='upload')
 ]

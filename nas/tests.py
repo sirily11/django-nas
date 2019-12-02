@@ -1,10 +1,13 @@
 from django.test import TestCase
+from rest_framework.test import force_authenticate, APIRequestFactory
+from .views import FolderViewSet, FileViewSet
 from .models import Folder, File as FileObj
 from django.contrib.auth.models import User
 from os.path import join
 from os import remove
 from django.core.files import File
 import mock
+import os
 
 
 # Create your tests here.
@@ -20,7 +23,8 @@ class BaseTest(TestCase):
         self.assertTrue(join("Base", "Test1") in file.file.path)
 
     def tearDown(self):
-        remove("django_nas")
+        remove(join(os.getcwd(), "django_nas/media/Base/Test1"))
+        os.removedirs(join(os.getcwd(), "django_nas/media/Base/"))
 
 
 class ViewsTest(TestCase):
@@ -34,7 +38,43 @@ class ViewsTest(TestCase):
         self.file = FileObj.objects.create(file=moc_file, owner=self.user)
 
     def tearDown(self):
-        self.video.delete()
-        self.images.delete()
+        try:
+            p = join(os.getcwd(), "django_nas/media/")
+            remove(join(p, 'Test1'))
+            remove(join(p, "VideoTest/Test1"))
+            os.removedirs(join(p, "VideoTest"))
+        except Exception:
+            pass
 
     def test_list(self):
+        factory = APIRequestFactory()
+        view = FolderViewSet.as_view({'get': 'list'})
+        request = factory.get("/folder/")
+        response = view(request)
+        self.assertEqual(len(response.data['files']), 1)
+        self.assertEqual(len(response.data['folders']), 2)
+        self.assertEqual(response.data['folders'][0]['name'], 'VideoTest')
+        self.assertEqual(response.data['folders'][1]['name'], 'ImagesTest')
+
+    def test_inner_files(self):
+        moc_file: File = mock.MagicMock(spec=File)
+        moc_file.name = "Test1"
+        self.video_file = FileObj.objects.create(file=moc_file, owner=self.user, parent=self.video)
+        factory = APIRequestFactory()
+        view = FolderViewSet.as_view({'get': 'retrieve'})
+        request = factory.get(f"/folder/")
+        response = view(request, pk=self.video.pk)
+        self.assertEqual(len(response.data['files']), 1)
+
+    def test_inner_folders(self):
+        folder1 = Folder.objects.create(name="a", owner=self.user, parent=self.video)
+        folder2 = Folder.objects.create(name="b", owner=self.user, parent=self.video)
+        factory = APIRequestFactory()
+        view = FolderViewSet.as_view({'get': 'list'})
+        request = factory.get("/folder/")
+        response = view(request)
+        self.assertEqual(len(response.data['folders']), 2)
+        view = FolderViewSet.as_view({'get': 'retrieve'})
+        request = factory.get("/folder/")
+        response = view(request, pk=self.video.pk)
+        self.assertEqual(len(response.data['folders']), 2)

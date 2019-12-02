@@ -14,7 +14,7 @@ class FileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = File
-        fields = ("id", "created_at", "description", "user", "size", "modified_at", "file", "object_type")
+        fields = ("id","created_at", "description", "user", "size", "modified_at", "file", "object_type")
 
 
 class FolderBasicSerializer(serializers.ModelSerializer):
@@ -22,13 +22,13 @@ class FolderBasicSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Folder
-        fields = ("id", "created_at", "name", "description", "user", "size", "modified_at")
+        fields = ("id","created_at", "name", "description", "user", "size", "modified_at")
 
 
 class FolderSerializer(serializers.ModelSerializer):
-    user = UserSerializer(source="owner")
-    files = FileSerializer(many=True)
-    folders = FolderBasicSerializer(many=True)
+    user = UserSerializer(source="owner", read_only=True, required=False)
+    files = FileSerializer(many=True, read_only=True)
+    folders = FolderBasicSerializer(many=True, read_only=True)
 
     class Meta:
         model = Folder

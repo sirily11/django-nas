@@ -1,3 +1,5 @@
+from typing import Optional, Union, Sequence
+
 from django.db import models
 from django.contrib.auth.models import User
 from os.path import join
@@ -22,7 +24,7 @@ class Folder(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=128, unique=True, default="")
     description = models.TextField(null=True, blank=True)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE)
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     size = models.FloatField(blank=True, null=True)
     modified_at = models.DateTimeField(auto_now_add=True)
 
@@ -42,3 +44,8 @@ class File(models.Model):
 
     def __str__(self):
         return self.file.name
+
+    def save(self, *args, **kwargs) -> None:
+        size = self.file.size
+        self.size = size
+        super(File, self).save(*args, **kwargs)

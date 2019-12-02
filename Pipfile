@@ -9,6 +9,7 @@ verify_ssl = true
 django = "*"
 djangorestframework = "*"
 mock = "*"
+psutil = "*"
 
 [requires]
 python_version = "3.7"
