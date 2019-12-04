@@ -65,7 +65,7 @@ class SystemInfoView(generics.RetrieveAPIView):
         cpu = psutil.cpu_percent()
         disk = psutil.disk_usage("/")
         if sys.platform.startswith('linux'):
-            disk = psutil.disk_usage('/dev/sda2')
+            disk = psutil.disk_usage(os.getcwd())
         memory = psutil.virtual_memory()
         return Response(data={
             "cpu": cpu,
