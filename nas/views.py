@@ -10,7 +10,7 @@ from rest_framework import generics
 import psutil
 from django.conf import settings
 import os
-
+import sys
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by("-date_joined")
@@ -64,6 +64,8 @@ class SystemInfoView(generics.RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         cpu = psutil.cpu_percent()
         disk = psutil.disk_usage("/")
+        if sys.platform.startswith('linux'):
+            disk = psutil.disk_usage('/dev/sda2')
         memory = psutil.virtual_memory()
         return Response(data={
             "cpu": cpu,
