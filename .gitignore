@@ -1,4 +1,4 @@
-media
+django_nas/media
 templates
 *.sqlite3
 *.pyc
