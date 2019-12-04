@@ -1,12 +1,14 @@
 from django.shortcuts import render, HttpResponse
-from .serializers import FolderSerializer, FileSerializer, UserSerializer, FolderBasicSerializer
-from .models import Folder, File
+from .serializers import FolderSerializer, \
+    FileSerializer, UserSerializer, FolderBasicSerializer, DocumentSerializer, \
+    DocumentAbstractSerializer
+from .models import Folder, File, Document
 from rest_framework import viewsets
 from django.contrib.auth.models import User
 from rest_framework.response import Response
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework import generics
 import psutil
-import json
+from django.conf import settings
 import os
 
 
@@ -24,16 +26,24 @@ class FolderViewSet(viewsets.ModelViewSet):
         # Get root
         obj = Folder.objects.filter(parent__isnull=True).all()
         obj2 = File.objects.filter(parent__isnull=True).all()
+        obj3 = Document.objects.filter(parent__isnull=True).all()
+
+        total_size = sum(o.total_size for o in obj)
+        total_size += sum(o.size for o in obj2 if o.size)
 
         serializer = FolderBasicSerializer(obj, many=True)
-        serializer2 = FileSerializer(obj2, many=True)
+        serializer2 = FileSerializer(obj2, many=True, context={'request': request})
+        serializer3 = DocumentAbstractSerializer(obj3, many=True)
 
         try:
 
             return Response(data={
                 "name": "root",
                 "folders": serializer.data,
-                "files": serializer2.data
+                "files": serializer2.data,
+                "documents": serializer3.data,
+                "parents": [],
+                "total_size": total_size
             },
                 status=200)
         except Exception:
@@ -45,45 +55,31 @@ class FileViewSet(viewsets.ModelViewSet):
     serializer_class = FileSerializer
 
 
+class DocumentViewSet(viewsets.ModelViewSet):
+    queryset = Document.objects.all()
+    serializer_class = DocumentSerializer
+
+
+class SystemInfoView(generics.RetrieveAPIView):
+    def get(self, request, *args, **kwargs):
+        cpu = psutil.cpu_percent()
+        disk = psutil.disk_usage("/")
+        memory = psutil.virtual_memory()
+        return Response(data={
+            "cpu": cpu,
+            "disk": {"used": disk.used, "total": disk.total},
+            "memory": {"used": memory.used, "total": memory.total}
+        })
+
+
 def index(request):
-    files = File.objects.filter(parent__isnull=True).all()
-    folders = Folder.objects.filter(parent__isnull=True).all()
-    size = round(sum(f.size for f in files if f.size) / 1024 / 1024, 2)
-    space = f"{round(psutil.disk_usage('/').used / 1024 / 1024, 2)} MB/" \
-        f"{round(psutil.disk_usage('/').total / 1024 / 1024, 2)} MB"
-    context = {"files": files, "folders": folders, "size": size, "space": space}
-    return render(request, 'nas/index.html', context=context)
-
-
-def detail(request, pk):
-    folder = Folder.objects.get(pk=pk)
-    files = File.objects.filter(parent=folder).all()
-    folders = Folder.objects.filter(parent=folder).all()
-    p = folder
-    menus = []
-    while p:
-        menus.append({"name": p.name, "id": p.id})
-        p = p.parent
-
-    menus.reverse()
-    size = round(sum(f.size for f in files if f.size) / 1024 / 1024, 2)
-    space = f"{round(psutil.disk_usage('/').used / 1024 / 1024, 2)} MB/" \
-        f"{round(psutil.disk_usage('/').total / 1024 / 1024, 2)} MB"
-    context = {"files": files, "folders": folders, 'menus': menus, "size": size, "space": space, "current_dir": pk}
-    return render(request, 'nas/index.html', context=context)
-
-
-@csrf_exempt
-def upload(request):
-    if request.method == "POST":
-        file = request.FILES['files']
-        current_dir = request.POST.get('current_dir')
-        parent = None
-        if current_dir:
-            # not root
-            parent = Folder.objects.get(pk=current_dir)
-
-        File.objects.create(file=file, owner=request.user, parent=parent)
-        return HttpResponse(content=json.dumps({"status": "ok"}))
-
-
+    try:
+        with open(os.path.join(settings.REACT_APP_DIR, 'build', 'index.html')) as f:
+            return HttpResponse(f.read())
+    except FileNotFoundError:
+        return HttpResponse(
+            """
+             Webapp not found
+            """,
+            status=501,
+        )

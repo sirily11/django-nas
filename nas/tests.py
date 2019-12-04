@@ -22,9 +22,9 @@ class BaseTest(TestCase):
         file = FileObj.objects.create(file=moc_file, parent=self.base, owner=self.user)
         self.assertTrue(join("Base", "Test1") in file.file.path)
 
-    def tearDown(self):
-        remove(join(os.getcwd(), "django_nas/media/Base/Test1"))
-        os.removedirs(join(os.getcwd(), "django_nas/media/Base/"))
+    # def tearDown(self):
+    #     remove(join(os.getcwd(), "django_nas/media/Base/Test1"))
+    #     os.removedirs(join(os.getcwd(), "django_nas/media/Base/"))
 
 
 class ViewsTest(TestCase):
@@ -35,16 +35,17 @@ class ViewsTest(TestCase):
         self.images = Folder.objects.create(name='ImagesTest', owner=self.user)
         moc_file: File = mock.MagicMock(spec=File)
         moc_file.name = "Test1"
+        moc_file.size = 10
         self.file = FileObj.objects.create(file=moc_file, owner=self.user)
 
-    def tearDown(self):
-        try:
-            p = join(os.getcwd(), "django_nas/media/")
-            remove(join(p, 'Test1'))
-            remove(join(p, "VideoTest/Test1"))
-            os.removedirs(join(p, "VideoTest"))
-        except Exception:
-            pass
+    # def tearDown(self):
+    #     try:
+    #         p = join(os.getcwd(), "django_nas/media/")
+    #         remove(join(p, 'Test1'))
+    #         remove(join(p, "VideoTest/Test1"))
+    #         os.removedirs(join(p, "VideoTest"))
+    #     except Exception:
+    #         pass
 
     def test_list(self):
         factory = APIRequestFactory()
@@ -59,6 +60,7 @@ class ViewsTest(TestCase):
     def test_inner_files(self):
         moc_file: File = mock.MagicMock(spec=File)
         moc_file.name = "Test1"
+        moc_file.size = 10
         self.video_file = FileObj.objects.create(file=moc_file, owner=self.user, parent=self.video)
         factory = APIRequestFactory()
         view = FolderViewSet.as_view({'get': 'retrieve'})
