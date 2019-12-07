@@ -1,4 +1,6 @@
 from django.shortcuts import render, HttpResponse
+from django.http import JsonResponse
+from django.urls import reverse
 from .serializers import FolderSerializer, \
     FileSerializer, UserSerializer, FolderBasicSerializer, DocumentSerializer, \
     DocumentAbstractSerializer
@@ -11,6 +13,8 @@ import psutil
 from django.conf import settings
 import os
 import sys
+import zipfile
+from django.views.decorators.csrf import csrf_exempt
 
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by("-date_joined")
@@ -85,3 +89,25 @@ def index(request):
             """,
             status=501,
         )
+
+@csrf_exempt
+def download(request, folder):
+    if request.method == "POST":
+        return JsonResponse(
+            data={"download_url": request.build_absolute_uri(reverse("download", kwargs={"folder": folder}))})
+    """Download archive zip file of code snippets"""
+    # response = HttpResponse(content_type='application/zip')
+    response = HttpResponse(content_type='application/zip')
+    zf = zipfile.ZipFile(response, 'w')
+    folder = Folder.objects.get(id=folder)
+    files = File.objects.filter(parent=folder).all()
+
+    for file in files:
+        with open(file.file.path, 'rb') as f:
+            zf.writestr(file.file.name, f.read())
+
+    zipfile_name = f"{folder.name}.zip"
+
+    # return as zipfile
+    response['Content-Disposition'] = f'attachment; filename={zipfile_name}'
+    return response
