@@ -2,8 +2,8 @@ from typing import Optional, Union, Sequence
 from django.db import models
 from django.contrib.auth.models import User
 from os.path import join
-from .video_transcode import transcode_video
-import django_rq
+# from .video_transcode import transcode_video
+# import django_rq
 
 CHOICES = (("Image", "image"), ("Text", "txt"), ("File", "file"))
 VIDEO_EXT = ['.m4v', '.mov', '.mp4', '.m4a', '.wmv']
