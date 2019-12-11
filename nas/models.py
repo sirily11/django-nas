@@ -2,9 +2,11 @@ from typing import Optional, Union, Sequence
 from django.db import models
 from django.contrib.auth.models import User
 from os.path import join
+from .video_transcode import transcode_video
+import django_rq
 
 CHOICES = (("Image", "image"), ("Text", "txt"), ("File", "file"))
-
+VIDEO_EXT = ['.m4v', '.mov', '.mp4', '.m4a', '.wmv']
 
 def user_directory_path(instance, filename: str):
     path = filename
@@ -73,6 +75,7 @@ class File(models.Model):
     modified_at = models.DateTimeField(auto_now_add=True)
     parent = models.ForeignKey(Folder, on_delete=models.CASCADE, related_name="files", null=True, blank=True)
     file = models.FileField(upload_to=user_directory_path)
+    transcode_filepath = models.FileField(null=True, blank=True)
 
     def filename(self):
         return self.file.name
@@ -83,6 +86,9 @@ class File(models.Model):
     def save(self, *args, **kwargs) -> None:
         size = self.file.size
         self.size = size
+        if self.file.path.lower() in VIDEO_EXT:
+            transcode_video(self.file.path)
+
         super(File, self).save(*args, **kwargs)
 
 
@@ -95,3 +101,12 @@ class Document(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     size = models.FloatField(blank=True, null=True)
     modified_at = models.DateTimeField(auto_now_add=True)
+
+
+# def transcode_video(sender: File, **kwargs):
+#     if kwargs['created']:
+#         print("Created")
+#         print(sender.file.url)
+#
+#
+# post_save.connect(transcode_video, sender=File)

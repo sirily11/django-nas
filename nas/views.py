@@ -16,6 +16,7 @@ import sys
 import zipfile
 from django.views.decorators.csrf import csrf_exempt
 
+
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by("-date_joined")
     serializer_class = UserSerializer
@@ -71,11 +72,21 @@ class SystemInfoView(generics.RetrieveAPIView):
         if sys.platform.startswith('linux'):
             disk = psutil.disk_usage(os.getcwd())
         memory = psutil.virtual_memory()
-        return Response(data={
+        data = {
             "cpu": cpu,
             "disk": {"used": disk.used, "total": disk.total},
             "memory": {"used": memory.used, "total": memory.total}
-        })
+        }
+        try:
+            from coral.enviro.board import EnviroBoard
+            enviro = EnviroBoard()
+            data['temperature'] = enviro.temperature
+            data['humidity'] = enviro.humidity
+            data['pressure'] = enviro.pressure
+        except Exception as e:
+            pass
+
+        return Response(data=data)
 
 
 def index(request):
@@ -89,6 +100,7 @@ def index(request):
             """,
             status=501,
         )
+
 
 @csrf_exempt
 def download(request, folder):

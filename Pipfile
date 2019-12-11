@@ -12,6 +12,9 @@ mock = "*"
 psutil = "*"
 django-cleanup = "*"
 django-cors-headers = "*"
+ffmpeg-python = "*"
+django-rq = "*"
+coral = "*"
 
 [requires]
 python_version = "3.7"

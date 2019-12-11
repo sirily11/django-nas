@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "6b7e87ebc2017241515132432072c9075c47f280fe25b37e0369c066af505345"
+            "sha256": "a0e877232bfcb21189b07d0853bc1cce437206e5edb5751633a029fccf24a7a0"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -22,6 +22,13 @@
                 "sha256:ea448f92fc35a0ef4b1508f53a04c4670255a3f33d22a81c8fc9c872036adbe5"
             ],
             "version": "==3.2.3"
+        },
+        "click": {
+            "hashes": [
+                "sha256:2335065e6395b9e67ca716de5f7526736bfa6ceead690adf616d925bdc622b13",
+                "sha256:5b94b49521f6456670fdb30cd82a4eca9412788a93fa6dd6df72c94d5a8ff2d7"
+            ],
+            "version": "==7.0"
         },
         "django": {
             "hashes": [
@@ -47,6 +54,14 @@
             "index": "pypi",
             "version": "==3.2.0"
         },
+        "django-rq": {
+            "hashes": [
+                "sha256:04cb9626827c667699281a377234f63fe2ba768c4f83d6bfb5c086f9ab1edcaf",
+                "sha256:f8d8998f60f915c7229a365e2e3d232be7aa27d32f3bbb3219a04a7e7a62a95c"
+            ],
+            "index": "pypi",
+            "version": "==2.2.0"
+        },
         "djangorestframework": {
             "hashes": [
                 "sha256:5488aed8f8df5ec1d70f04b2114abc52ae6729748a176c453313834a9ee179c8",
@@ -54,6 +69,20 @@
             ],
             "index": "pypi",
             "version": "==3.10.3"
+        },
+        "ffmpeg-python": {
+            "hashes": [
+                "sha256:65225db34627c578ef0e11c8b1eb528bb35e024752f6f10b78c011f6f64c4127",
+                "sha256:ac441a0404e053f8b6a1113a77c0f452f1cfc62f6344a769475ffdc0f56c23c5"
+            ],
+            "index": "pypi",
+            "version": "==0.2.0"
+        },
+        "future": {
+            "hashes": [
+                "sha256:b1bead90b70cf6ec3f0710ae53a525360fa360d306a86583adc6bf83a4db537d"
+            ],
+            "version": "==0.18.2"
         },
         "mock": {
             "hashes": [
@@ -86,6 +115,20 @@
                 "sha256:b02c06db6cf09c12dd25137e563b31700d3b80fcc4ad23abb7a315f2789819be"
             ],
             "version": "==2019.3"
+        },
+        "redis": {
+            "hashes": [
+                "sha256:3613daad9ce5951e426f460deddd5caf469e08a3af633e9578fc77d362becf62",
+                "sha256:8d0fc278d3f5e1249967cba2eb4a5632d19e45ce5c09442b8422d15ee2c22cc2"
+            ],
+            "version": "==3.3.11"
+        },
+        "rq": {
+            "hashes": [
+                "sha256:2798d26a7b850e759f23f69695a389d676a9c08f2c14f96f0d34d9648c9d5616",
+                "sha256:4f27c6a690d1bd02b9157e615d8819555b9b359c0c4ec8ff0013d160c31b40bb"
+            ],
+            "version": "==1.1.0"
         },
         "six": {
             "hashes": [
