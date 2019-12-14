@@ -1,6 +1,5 @@
 from django.db import models
 from django.contrib.auth.models import User
-from .video_transcode import transcode_video
 import django_rq
 import os
 import ffmpeg
