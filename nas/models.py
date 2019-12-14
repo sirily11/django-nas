@@ -9,8 +9,7 @@ from django.conf import settings
 from django.core.files import File as Dfile
 
 CHOICES = (("Image", "image"), ("Text", "txt"), ("File", "file"))
-VIDEO_EXT = ['.m4v', '.mov', '.m4a', '.wmv']
-VIDEO_EXT_NO_TRANS = ['.mp4']
+VIDEO_EXT = ['.m4v', '.mov', '.m4a', '.wmv', '.mp4']
 
 
 def user_directory_path(instance, filename: str):
@@ -81,6 +80,7 @@ class File(models.Model):
     parent = models.ForeignKey(Folder, on_delete=models.CASCADE, related_name="files", null=True, blank=True)
     file = models.FileField(upload_to=user_directory_path)
     transcode_filepath = models.FileField(null=True, blank=True)
+    cover = models.FileField(null=True, blank=True)
 
     def filename(self):
         return self.file.name
@@ -94,12 +94,9 @@ class File(models.Model):
         filename, file_extension = os.path.splitext(self.file.path)
         super(File, self).save(*args, **kwargs)
 
-        if file_extension.lower() in VIDEO_EXT and self.transcode_filepath.name is None:
+        if file_extension.lower() in VIDEO_EXT and self.cover.name is None:
             queue = django_rq.get_queue()
-            queue.enqueue(transcode_video, self.file.path, self.pk)
-
-        if file_extension.lower() in VIDEO_EXT and self.transcode_filepath.name is None:
-            self.transcode_filepath.name = self.file.name
+            queue.enqueue(generate_video_cover, self.file.path, self.pk)
 
 
 class Document(models.Model):
@@ -126,4 +123,21 @@ def transcode_video(path, file_id):
     ffmpeg.run(stream)
     file.transcode_filepath.name = join("transcodes", name)
     file.save()
+    return output_path
+
+
+@job
+def generate_video_cover(path, file_id):
+    name = f"{splitext(basename(path))[0]}.jpg"
+    output_path = join(settings.MEDIA_ROOT, "covers", name)
+    file = File.objects.filter(pk=file_id).first()
+    if not exists(join(settings.MEDIA_ROOT, "covers")):
+        os.mkdir(join(settings.MEDIA_ROOT, "covers"))
+    if not exists(output_path):
+        stream = ffmpeg.input(path)
+        stream = ffmpeg.filter(stream, 'scale', 1920, -1)
+        stream = ffmpeg.output(stream, output_path, vframes=1)
+        ffmpeg.run(stream)
+        file.cover.name = join("covers", name)
+        file.save()
     return output_path
