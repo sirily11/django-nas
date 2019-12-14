@@ -13,5 +13,4 @@ urlpatterns = [
     path('system/', views.SystemInfoView.as_view()),
     path('api/download/<int:folder>', views.download, name='download'),
     path('', views.index, name='home'),
-
 ]

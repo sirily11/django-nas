@@ -15,6 +15,7 @@ import os
 import sys
 import zipfile
 from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -22,7 +23,7 @@ class UserViewSet(viewsets.ModelViewSet):
     serializer_class = UserSerializer
 
 
-# Create your views here.
+@method_decorator(csrf_exempt, name='dispatch')
 class FolderViewSet(viewsets.ModelViewSet):
     queryset = Folder.objects.all()
     serializer_class = FolderSerializer
@@ -55,16 +56,19 @@ class FolderViewSet(viewsets.ModelViewSet):
             return Response(status=500)
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class FileViewSet(viewsets.ModelViewSet):
     queryset = File.objects.all()
     serializer_class = FileSerializer
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class DocumentViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
 
 
+@method_decorator(csrf_exempt, name='dispatch')
 class SystemInfoView(generics.RetrieveAPIView):
     def get(self, request, *args, **kwargs):
         cpu = psutil.cpu_percent()
