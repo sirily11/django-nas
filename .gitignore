@@ -3,3 +3,4 @@ templates
 *.sqlite3
 *.pyc
 .idea
+data/
