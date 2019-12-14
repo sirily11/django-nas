@@ -1,0 +1,36 @@
+version: "3.7"
+services:
+  queue:
+    build: ./
+    image: server
+    container_name: queue
+    volumes:
+      - ./:/usr/local/django_nas
+    command: >
+      sh -c "python manage.py rqworker"
+    depends_on:
+      - redis
+
+  django:
+    build: ./
+    image: server
+    volumes:
+      - ./:/usr/local/django_nas
+    command: >
+      sh -c "python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:80"
+    ports:
+      - 8000:80
+    depends_on:
+      - queue
+
+  redis:
+    image: redis:latest
+    deploy:
+      replicas: 1
+    volumes:
+      - ./data:/data
+#    ports:
+#      - 6379:6379
+#      - 26736:26736
+#      - 26737:26737

@@ -1,12 +1,17 @@
-from typing import Optional, Union, Sequence
 from django.db import models
 from django.contrib.auth.models import User
-from os.path import join
-# from .video_transcode import transcode_video
-# import django_rq
+from .video_transcode import transcode_video
+import django_rq
+import os
+import ffmpeg
+from os.path import dirname, join, splitext, exists, basename
+from django_rq import job
+from django.conf import settings
+from django.core.files import File as Dfile
 
 CHOICES = (("Image", "image"), ("Text", "txt"), ("File", "file"))
 VIDEO_EXT = ['.m4v', '.mov', '.mp4', '.m4a', '.wmv']
+
 
 def user_directory_path(instance, filename: str):
     path = filename
@@ -86,10 +91,11 @@ class File(models.Model):
     def save(self, *args, **kwargs) -> None:
         size = self.file.size
         self.size = size
-        if self.file.path.lower() in VIDEO_EXT:
-            transcode_video(self.file.path)
-
+        filename, file_extension = os.path.splitext(self.file.path)
         super(File, self).save(*args, **kwargs)
+        if file_extension.lower() in VIDEO_EXT and self.transcode_filepath.name is None:
+            queue = django_rq.get_queue()
+            queue.enqueue(transcode_video, self.file.path, self.pk)
 
 
 class Document(models.Model):
@@ -103,10 +109,18 @@ class Document(models.Model):
     modified_at = models.DateTimeField(auto_now_add=True)
 
 
-# def transcode_video(sender: File, **kwargs):
-#     if kwargs['created']:
-#         print("Created")
-#         print(sender.file.url)
-#
-#
-# post_save.connect(transcode_video, sender=File)
+@job
+def transcode_video(path, file_id):
+    name = f"{splitext(basename(path))[0]}.mp4"
+    t_p = f"{splitext(path)[0]}_transcode"
+    output_path = join(settings.MEDIA_ROOT, t_p, name)
+    file = File.objects.filter(pk=file_id).first()
+    if not exists(t_p):
+        os.mkdir(t_p)
+    stream = ffmpeg.input(path)
+
+    stream = ffmpeg.output(stream, output_path)
+    ffmpeg.run(stream)
+    file.transcode_filepath.name = join(basename(t_p), name)
+    file.save()
+    return output_path
