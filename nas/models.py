@@ -112,15 +112,14 @@ class Document(models.Model):
 @job
 def transcode_video(path, file_id):
     name = f"{splitext(basename(path))[0]}.mp4"
-    t_p = f"{splitext(path)[0]}_transcode"
-    output_path = join(settings.MEDIA_ROOT, t_p, name)
+    output_path = join(settings.MEDIA_ROOT, "transcodes", name)
     file = File.objects.filter(pk=file_id).first()
-    if not exists(t_p):
-        os.mkdir(t_p)
+    if not exists(join(settings.MEDIA_ROOT, "transcodes")):
+        os.mkdir(join(settings.MEDIA_ROOT, "transcodes"))
     stream = ffmpeg.input(path)
 
     stream = ffmpeg.output(stream, output_path)
     ffmpeg.run(stream)
-    file.transcode_filepath.name = join(basename(t_p), name)
+    file.transcode_filepath.name = join("transcodes", name)
     file.save()
     return output_path
