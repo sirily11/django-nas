@@ -9,7 +9,8 @@ from django.conf import settings
 from django.core.files import File as Dfile
 
 CHOICES = (("Image", "image"), ("Text", "txt"), ("File", "file"))
-VIDEO_EXT = ['.m4v', '.mov', '.mp4', '.m4a', '.wmv']
+VIDEO_EXT = ['.m4v', '.mov', '.m4a', '.wmv']
+VIDEO_EXT_NO_TRANS = ['.mp4']
 
 
 def user_directory_path(instance, filename: str):
@@ -92,9 +93,13 @@ class File(models.Model):
         self.size = size
         filename, file_extension = os.path.splitext(self.file.path)
         super(File, self).save(*args, **kwargs)
+
         if file_extension.lower() in VIDEO_EXT and self.transcode_filepath.name is None:
             queue = django_rq.get_queue()
             queue.enqueue(transcode_video, self.file.path, self.pk)
+
+        if file_extension.lower() in VIDEO_EXT and self.transcode_filepath.name is None:
+            self.transcode_filepath.name = self.file.name
 
 
 class Document(models.Model):
