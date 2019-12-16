@@ -43,7 +43,8 @@ class Folder(models.Model):
         folders = Folder.objects.filter(parent=self.pk).all()
 
         for folder in folders:
-            total_size += folder.total_size
+            if folder.total_size:
+                total_size += folder.total_size
 
         return total_size
 
