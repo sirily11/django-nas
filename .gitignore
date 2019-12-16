@@ -3,5 +3,5 @@ templates
 *.sqlite3
 *.pyc
 .idea
-data
-*.rdb
+data/
+dump.rdb
