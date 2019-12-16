@@ -8,7 +8,6 @@ from django_rq import job
 from django.conf import settings
 from django.db.models import Sum
 
-
 CHOICES = (("Image", "image"), ("Text", "txt"), ("File", "file"))
 VIDEO_EXT = ['.m4v', '.mov', '.m4a', '.wmv', '.mp4']
 
@@ -31,8 +30,17 @@ class Folder(models.Model):
     name = models.CharField(max_length=128, default="")
     description = models.TextField(null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
-    size = models.FloatField(blank=True, null=True)
+    size = models.FloatField(blank=True, null=True, default=0)
     modified_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def total_size_fast(self):
+        folders = Folder.objects.filter(parent=self.pk).all()
+        s = sum(o.total_size for o in folders)
+        if self.size:
+            return self.size + s
+        else:
+            return s
 
     @property
     def total_size(self):
@@ -40,13 +48,29 @@ class Folder(models.Model):
         Get total size for the current directory in bytes
         :return:
         """
-        total_size = File.objects.filter(parent=self.pk).aggregate(Sum('size'))['size__sum']
+        total_size = 0
+        if not self.size:
+            s = File.objects.filter(parent=self.pk).aggregate(Sum('size'))['size__sum']
+            self.size = s
+            self.save()
+            if s:
+                total_size += s
+        else:
+            total_size = self.size
         folders = Folder.objects.filter(parent=self.pk).all()
-        if not total_size:
-            total_size = 0
+
         for folder in folders:
-            if folder.total_size:
+            # If size field is empty
+            if folder.size:
+                size = File.objects.filter(id=folder.id).aggregate(Sum('size'))['size__sum']
+                if size:
+                    folder.size = size
+                    folder.save()
                 total_size += folder.total_size
+
+            else:
+                fast = folder.total_size_fast
+                total_size += fast
 
         return total_size
 
@@ -94,7 +118,15 @@ class File(models.Model):
         size = self.file.size
         self.size = size
         filename, file_extension = os.path.splitext(self.file.path)
+        folder = Folder.objects.get(id=self.parent.id)
         super(File, self).save(*args, **kwargs)
+
+        if folder:
+            if folder.size:
+                folder.size += size
+            else:
+                folder.size = size
+            folder.save()
 
         if file_extension.lower() in VIDEO_EXT and self.cover.name is None:
             queue = django_rq.get_queue()
@@ -104,7 +136,14 @@ class File(models.Model):
         _, output_path = get_filename(self.file.path, self.id)
         if exists(output_path):
             os.remove(output_path)
+        folder = Folder.objects.get(id=self.parent.id)
         super(File, self).delete(*args, **kwargs)
+        if folder:
+            if folder.size:
+                folder.size -= self.size
+            else:
+                folder.size = 0
+            folder.save()
 
 
 class Document(models.Model):
