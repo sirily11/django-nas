@@ -34,9 +34,9 @@ class FolderViewSet(viewsets.ModelViewSet):
         obj2 = File.objects.filter(parent__isnull=True).all()
         obj3 = Document.objects.filter(parent__isnull=True).all()
 
-        # disk = psutil.disk_usage("/")
-        # if sys.platform.startswith('linux'):
-        #     disk = psutil.disk_usage(os.getcwd())
+        disk = psutil.disk_usage("/")
+        if sys.platform.startswith('linux'):
+            disk = psutil.disk_usage(os.getcwd())
         # total_size = sum(o.total_size for o in obj)
         # total_size += sum(o.size for o in obj2 if o.size)
 
@@ -52,7 +52,7 @@ class FolderViewSet(viewsets.ModelViewSet):
                 "files": serializer2.data,
                 "documents": serializer3.data,
                 "parents": [],
-                "total_size": 0
+                "total_size": disk.used
             },
                 status=200)
         except Exception:
