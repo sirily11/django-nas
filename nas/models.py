@@ -115,10 +115,13 @@ class File(models.Model):
         return self.file.name
 
     def save(self, *args, **kwargs) -> None:
+        folder = None
+
         size = self.file.size
         self.size = size
         filename, file_extension = os.path.splitext(self.file.path)
-        folder = Folder.objects.get(id=self.parent.id)
+        if self.parent:
+            folder = Folder.objects.get(id=self.parent.id)
         super(File, self).save(*args, **kwargs)
 
         if folder:
@@ -133,10 +136,12 @@ class File(models.Model):
             queue.enqueue(generate_video_cover, self.file.path, self.pk)
 
     def delete(self, *args, **kwargs):
+        folder = None
         _, output_path = get_filename(self.file.path, self.id)
         if exists(output_path):
             os.remove(output_path)
-        folder = Folder.objects.get(id=self.parent.id)
+        if self.parent:
+            folder = Folder.objects.get(id=self.parent.id)
         super(File, self).delete(*args, **kwargs)
         if folder:
             if folder.size:
