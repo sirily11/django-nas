@@ -102,7 +102,7 @@ class File(models.Model):
         _, output_path = get_filename(self.file.path, self.id)
         if exists(output_path):
             os.remove(output_path)
-        super(File, self).save(*args, **kwargs)
+        super(File, self).delete(*args, **kwargs)
 
 
 class Document(models.Model):
