@@ -100,10 +100,8 @@ class File(models.Model):
 
     def delete(self, *args, **kwargs):
         _, output_path = get_filename(self.file.path, self.id)
-        try:
+        if exists(output_path):
             os.remove(output_path)
-        except Exception:
-            pass
         super(File, self).save(*args, **kwargs)
 
 
