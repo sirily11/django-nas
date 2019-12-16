@@ -34,8 +34,11 @@ class FolderViewSet(viewsets.ModelViewSet):
         obj2 = File.objects.filter(parent__isnull=True).all()
         obj3 = Document.objects.filter(parent__isnull=True).all()
 
-        total_size = sum(o.total_size for o in obj)
-        total_size += sum(o.size for o in obj2 if o.size)
+        disk = psutil.disk_usage("/")
+        if sys.platform.startswith('linux'):
+            disk = psutil.disk_usage(os.getcwd())
+        # total_size = sum(o.total_size for o in obj)
+        # total_size += sum(o.size for o in obj2 if o.size)
 
         serializer = FolderBasicSerializer(obj, many=True)
         serializer2 = FileSerializer(obj2, many=True, context={'request': request})
@@ -49,7 +52,7 @@ class FolderViewSet(viewsets.ModelViewSet):
                 "files": serializer2.data,
                 "documents": serializer3.data,
                 "parents": [],
-                "total_size": total_size
+                "total_size": disk.used
             },
                 status=200)
         except Exception:

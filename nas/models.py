@@ -8,6 +8,7 @@ from django_rq import job
 from django.conf import settings
 from django.db.models import Sum
 
+
 CHOICES = (("Image", "image"), ("Text", "txt"), ("File", "file"))
 VIDEO_EXT = ['.m4v', '.mov', '.m4a', '.wmv', '.mp4']
 
