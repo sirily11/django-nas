@@ -41,7 +41,8 @@ class Folder(models.Model):
         """
         total_size = File.objects.filter(parent=self.pk).aggregate(Sum('size'))['size__sum']
         folders = Folder.objects.filter(parent=self.pk).all()
-
+        if not total_size:
+            total_size = 0
         for folder in folders:
             if folder.total_size:
                 total_size += folder.total_size
