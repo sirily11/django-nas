@@ -98,6 +98,12 @@ class File(models.Model):
             queue = django_rq.get_queue()
             queue.enqueue(generate_video_cover, self.file.path, self.pk)
 
+    def delete(self, *args, **kwargs):
+        _, output_path = get_filename(self.file.path, self.id)
+        os.remove(output_path)
+        super(File, self).save(*args, **kwargs)
+
+
 
 class Document(models.Model):
     content = models.TextField(blank=True, null=True)
@@ -110,10 +116,15 @@ class Document(models.Model):
     modified_at = models.DateTimeField(auto_now_add=True)
 
 
+def get_filename(path, file_id) -> (str, str):
+    name = f"{file_id}-{splitext(basename(path))[0]}.jpg"
+    output_path = join(settings.MEDIA_ROOT, "covers", name)
+    return name, output_path
+
+
 @job
 def transcode_video(path, file_id):
-    name = f"{splitext(basename(path))[0]}.mp4"
-    output_path = join(settings.MEDIA_ROOT, "transcodes", name)
+    name, output_path = get_filename(path, file_id)
     file = File.objects.filter(pk=file_id).first()
     if not exists(join(settings.MEDIA_ROOT, "transcodes")):
         os.mkdir(join(settings.MEDIA_ROOT, "transcodes"))
@@ -128,8 +139,7 @@ def transcode_video(path, file_id):
 
 @job
 def generate_video_cover(path, file_id):
-    name = f"{splitext(basename(path))[0]}.jpg"
-    output_path = join(settings.MEDIA_ROOT, "covers", name)
+    name, output_path = get_filename(path, file_id)
     file = File.objects.filter(pk=file_id).first()
     if not exists(join(settings.MEDIA_ROOT, "covers")):
         os.mkdir(join(settings.MEDIA_ROOT, "covers"))
