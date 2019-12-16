@@ -61,7 +61,7 @@ class Folder(models.Model):
 
         for folder in folders:
             # If size field is empty
-            if folder.size:
+            if not folder.size:
                 size = File.objects.filter(id=folder.id).aggregate(Sum('size'))['size__sum']
                 if size:
                     folder.size = size
