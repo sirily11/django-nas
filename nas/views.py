@@ -16,6 +16,7 @@ import sys
 import zipfile
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
+from rest_framework import filters
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -58,8 +59,10 @@ class FolderViewSet(viewsets.ModelViewSet):
 
 @method_decorator(csrf_exempt, name='dispatch')
 class FileViewSet(viewsets.ModelViewSet):
+    filter_backends = [filters.SearchFilter]
     queryset = File.objects.all()
     serializer_class = FileSerializer
+    search_fields = ['file']
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -91,6 +94,8 @@ class SystemInfoView(generics.RetrieveAPIView):
             pass
 
         return Response(data=data)
+
+
 
 
 def index(request):

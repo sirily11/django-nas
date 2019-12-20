@@ -38,7 +38,8 @@ INSTALLED_APPS = [
     'nas',
     'rest_framework',
     'django_cleanup.apps.CleanupConfig',
-    'django_rq'
+    'django_rq',
+    'django_filters'
 
 ]
 
@@ -47,6 +48,10 @@ INSTALLED_APPS = [
 #         'rest_framework.permissions.AllowAny',
 #     ]
 # }
+
+REST_FRAMEWORK = {
+    'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend']
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

@@ -14,3 +14,4 @@ redis==3.3.11
 rq==1.1.0
 six==1.13.0
 sqlparse==0.3.0
+django-filter==2.2.0
