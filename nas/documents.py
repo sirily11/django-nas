@@ -15,13 +15,13 @@ from .models import File, Document as Doc
 #         fields = ['file', 'size']
 #
 #
-@registry.register_document
-class DocDocument(Document):
-    class Index:
-        name = 'docs'
-        settings = {'number_of_shards': 1,
-                    'number_of_replicas': 0}
-
-    class Django:
-        model = Doc
-        fields = ['name', 'content']
+# @registry.register_document
+# class DocDocument(Document):
+#     class Index:
+#         name = 'docs'
+#         settings = {'number_of_shards': 1,
+#                     'number_of_replicas': 0}
+#
+#     class Django:
+#         model = Doc
+#         fields = ['name', 'content']
