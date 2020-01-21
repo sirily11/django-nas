@@ -46,7 +46,7 @@ class Folder(models.Model):
         Get total size for the current directory in bytes
         :return:
         """
-        total_size = self.size
+        total_size = self.size if self.size else 0
         folders = Folder.objects.filter(parent=self.pk).all()
 
         for folder in folders:
