@@ -39,19 +39,26 @@ class Folder(models.Model):
         s = sum(o.total_size for o in folders)
         return s
 
-
     @property
     def total_size(self):
         """
         Get total size for the current directory in bytes
         :return:
         """
-        total_size = self.size if self.size else 0
+        total_size = 0
+        if not self.size:
+            s = File.objects.filter(parent=self.pk).aggregate(Sum('size'))['size__sum']
+            self.size = s
+            self.save()
+            if s:
+                total_size += s
+        else:
+            total_size = self.size
         folders = Folder.objects.filter(parent=self.pk).all()
 
         for folder in folders:
             # If size field is empty
-            if folder.size == 0:
+            if not folder.size:
                 size = File.objects.filter(id=folder.id).aggregate(Sum('size'))['size__sum']
                 if size:
                     folder.size = size
@@ -60,8 +67,7 @@ class Folder(models.Model):
 
             else:
                 fast = folder.total_size_fast
-                if fast:
-                    total_size += fast
+                total_size += fast
 
         return total_size
 
@@ -116,8 +122,10 @@ class File(models.Model):
         super(File, self).save(*args, **kwargs)
 
         if folder:
-            folder.size += size
-
+            if folder.size:
+                folder.size += size
+            else:
+                folder.size = size
             folder.save()
 
         if file_extension.lower() in VIDEO_EXT and self.cover.name is None:
