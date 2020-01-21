@@ -1,5 +1,24 @@
 version: "3"
 services:
+#  elasticsearch:
+#    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+#    container_name: elasticsearch
+#    environment:
+#      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+#      - discovery.type=single-node
+#      - cluster.routing.allocation.disk.threshold_enabled=false
+#    volumes:
+#      - ./elasticsearch:/usr/share/elasticsearch/data
+#    ports:
+#      - 9200:9200
+#
+#  kibana:
+#    image: kibana:7.5.1
+#    ports:
+#      - 5601:5601
+#    depends_on:
+#      - elasticsearch
+
   queue:
     build: ./docker
     image: server
@@ -23,6 +42,7 @@ services:
       - 80:80
     depends_on:
       - queue
+#      - elasticsearch
 
   redis:
     image: redis:latest
@@ -31,19 +51,31 @@ services:
     volumes:
       - ./data:/data
 
-  samba:
-   container_name: samba
-   hostname: samba
-   image: sixeyed/samba
-   volumes:
-      - ./django-nas/samba:/mnt/sharing
-   ports:
-     - 139:139
-     - 445:445
-     - 137:137
-     - 138:138
-#      - "445:445"
-#      - "137:137/udp"
-#      - "138:138/udp"
-   command: samba.sh -s "file;/mnt/sharing/file;yes;no;yes;all"
-   restart: always
+#  reindex:
+#    build: ./docker
+#    image: server
+#    volumes:
+#      - ./:/usr/local/django_nas
+#    command: >
+#      sh -c "python manage.py search_index --rebuild -f"
+#    depends_on:
+#      - django
+
+
+
+#  samba:
+#   container_name: samba
+#   hostname: samba
+#   image: sixeyed/samba
+#   volumes:
+#      - ./django-nas/samba:/mnt/sharing
+#   ports:
+#     - 139:139
+#     - 445:445
+#     - 137:137
+#     - 138:138
+##      - "445:445"
+##      - "137:137/udp"
+##      - "138:138/udp"
+#   command: samba.sh -s "file;/mnt/sharing/file;yes;no;yes;all"
+#   restart: always

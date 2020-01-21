@@ -39,7 +39,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'django_cleanup.apps.CleanupConfig',
     'django_rq',
-    'django_filters'
+    'django_filters',
+    'django_elasticsearch_dsl'
 
 ]
 
@@ -110,6 +111,12 @@ STATICFILES_DIRS = [
 
 RQ = {
     'DEFAULT_RESULT_TTL': 25000,
+}
+
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': 'elasticsearch'
+    },
 }
 
 # Password validation

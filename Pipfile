@@ -16,6 +16,7 @@ ffmpeg-python = "*"
 django-rq = "*"
 coral = "*"
 django-mptt = "*"
+django-elasticsearch-dsl = "*"
 
 [requires]
 python_version = "3.7"

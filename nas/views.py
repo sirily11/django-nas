@@ -17,6 +17,7 @@ import zipfile
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework import filters
+from .documents import FileDocument
 
 
 class UserViewSet(viewsets.ModelViewSet):
@@ -64,11 +65,34 @@ class FileViewSet(viewsets.ModelViewSet):
     serializer_class = FileSerializer
     search_fields = ['file']
 
+    # def get_queryset(self):
+    #     queryset = File.objects.all()
+    #     search = self.request.query_params.get("search")
+    #     if search:
+    #         docs = FileDocument.search().query("match", file=search).to_queryset()
+    #         queryset = docs
+    #         # queryset = NewsFeed.objects.filter(
+    #         #     content__fts=search).order_by("-posted_time")
+    #
+    #     return queryset
+
 
 @method_decorator(csrf_exempt, name='dispatch')
 class DocumentViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
+    search_fields = ['content']
+
+    # def get_queryset(self):
+    #     queryset = Document.objects.all()
+    #     search = self.request.query_params.get("search")
+    #     if search:
+    #         docs = FileDocument.search().query("match", content=search).to_queryset()
+    #         queryset = docs
+    #         # queryset = NewsFeed.objects.filter(
+    #         #     content__fts=search).order_by("-posted_time")
+    #
+    #     return queryset
 
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -94,8 +118,6 @@ class SystemInfoView(generics.RetrieveAPIView):
             pass
 
         return Response(data=data)
-
-
 
 
 def index(request):
