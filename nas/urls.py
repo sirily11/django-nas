@@ -5,7 +5,7 @@ from . import views
 router = routers.DefaultRouter()
 router.register(r'file', views.FileViewSet, base_name="files")
 router.register(r'folder', views.FolderViewSet, base_name="folders")
-router.register(r'user', views.UserViewSet,  base_name="users")
+router.register(r'user', views.UserViewSet, base_name="users")
 router.register(r'document', views.DocumentViewSet, base_name='documents')
 
 urlpatterns = [

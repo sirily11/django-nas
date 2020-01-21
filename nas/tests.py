@@ -80,3 +80,34 @@ class ViewsTest(TestCase):
         request = factory.get("/folder/")
         response = view(request, pk=self.video.pk)
         self.assertEqual(len(response.data['folders']), 2)
+
+
+class SizeTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(email="abc@abc.com", password="abc")
+        self.base = Folder.objects.create(name="Base", owner=self.user, description="Some")
+        self.sub_folder = Folder.objects.create(name="sub_a", parent=self.base)
+
+    def test_add_file(self):
+        moc_file: File = mock.MagicMock(spec=File)
+        moc_file.name = "Test1"
+        moc_file.size = 30
+
+        moc_file2: File = mock.MagicMock(spec=File)
+        moc_file2.name = "Test2"
+        moc_file2.size = 40
+
+        moc_file3: File = mock.MagicMock(spec=File)
+        moc_file3.name = "Test2"
+        moc_file3.size = 40
+
+        FileObj.objects.create(file=moc_file, parent=self.base, owner=self.user).save()
+        self.assertEqual(self.base.total_size, 30)
+
+        FileObj.objects.create(file=moc_file2, parent=self.base, owner=self.user).save()
+        self.assertEqual(self.base.total_size, 70)
+
+        FileObj.objects.create(file=moc_file3, parent=self.sub_folder).save()
+        self.assertEqual(self.sub_folder.total_size, 40)
+        self.assertEqual(self.base.total_size, 100)
+
