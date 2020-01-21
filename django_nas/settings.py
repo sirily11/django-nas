@@ -115,7 +115,7 @@ RQ = {
 
 ELASTICSEARCH_DSL = {
     'default': {
-        'hosts': 'elasticsearch'
+        'hosts': 'elasticsearch:9200'
     },
 }
 

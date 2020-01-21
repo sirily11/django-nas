@@ -57,7 +57,7 @@ services:
     volumes:
       - ./:/usr/local/django_nas
     command: >
-      sh -c "python manage.py search_index --rebuild -f"
+      sh -c "python manage.py search_index --rebuild"
     depends_on:
       - django
 
