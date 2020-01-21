@@ -60,7 +60,8 @@ class Folder(models.Model):
 
             else:
                 fast = folder.total_size_fast
-                total_size += fast
+                if fast:
+                    total_size += fast
 
         return total_size
 
