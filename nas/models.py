@@ -37,7 +37,7 @@ class Folder(models.Model):
     def total_size_fast(self):
         folders = Folder.objects.filter(parent=self.pk).all()
         s = sum(o.total_size for o in folders)
-        return s
+        return s + self.size
 
     @property
     def total_size(self):
@@ -45,15 +45,7 @@ class Folder(models.Model):
         Get total size for the current directory in bytes
         :return:
         """
-        total_size = 0
-        if not self.size:
-            s = File.objects.filter(parent=self.pk).aggregate(Sum('size'))['size__sum']
-            self.size = s
-            self.save()
-            if s:
-                total_size += s
-        else:
-            total_size = self.size
+        total_size = self.size if self.size else 0
         folders = Folder.objects.filter(parent=self.pk).all()
 
         for folder in folders:
@@ -67,7 +59,8 @@ class Folder(models.Model):
 
             else:
                 fast = folder.total_size_fast
-                total_size += fast
+                if fast:
+                    total_size += fast
 
         return total_size
 
