@@ -1,23 +1,23 @@
 version: "3"
 services:
-#  elasticsearch:
-#    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
-#    container_name: elasticsearch
-#    environment:
-#      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-#      - discovery.type=single-node
-#      - cluster.routing.allocation.disk.threshold_enabled=false
-#    volumes:
-#      - ./elasticsearch:/usr/share/elasticsearch/data
-#    ports:
-#      - 9200:9200
-#
-#  kibana:
-#    image: kibana:7.5.1
-#    ports:
-#      - 5601:5601
-#    depends_on:
-#      - elasticsearch
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+    container_name: elasticsearch
+    environment:
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+      - discovery.type=single-node
+      - cluster.routing.allocation.disk.threshold_enabled=false
+    volumes:
+      - ./elasticsearch:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+
+  kibana:
+    image: kibana:7.5.1
+    ports:
+      - 5601:5601
+    depends_on:
+      - elasticsearch
 
   queue:
     build: ./docker
@@ -51,15 +51,15 @@ services:
     volumes:
       - ./data:/data
 
-#  reindex:
-#    build: ./docker
-#    image: server
-#    volumes:
-#      - ./:/usr/local/django_nas
-#    command: >
-#      sh -c "python manage.py search_index --rebuild -f"
-#    depends_on:
-#      - django
+  reindex:
+    build: ./docker
+    image: server
+    volumes:
+      - ./:/usr/local/django_nas
+    command: >
+      sh -c "python manage.py search_index --rebuild -f"
+    depends_on:
+      - django
 
 
 
