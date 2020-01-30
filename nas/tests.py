@@ -88,6 +88,11 @@ class SizeTest(TestCase):
         self.base = Folder.objects.create(name="Base", owner=self.user, description="Some")
         self.sub_folder = Folder.objects.create(name="sub_a", parent=self.base)
 
+    def test(self):
+        self.assertEqual(self.base.total_size, 0)
+        self.assertEqual(self.base.total_size, 0)
+        self.assertEqual(self.base.total_size_fast, 0)
+
     def test_add_file(self):
         moc_file: File = mock.MagicMock(spec=File)
         moc_file.name = "Test1"
@@ -101,10 +106,10 @@ class SizeTest(TestCase):
         moc_file3.name = "Test2"
         moc_file3.size = 40
 
-        FileObj.objects.create(file=moc_file, parent=self.base, owner=self.user).save()
+        FileObj(file=moc_file, parent=self.base, owner=self.user).save()
         self.assertEqual(self.base.total_size, 30)
 
-        FileObj.objects.create(file=moc_file2, parent=self.base, owner=self.user).save()
+        FileObj(file=moc_file2, parent=self.base, owner=self.user).save()
         self.assertEqual(self.base.total_size, 70)
 
         FileObj.objects.create(file=moc_file3, parent=self.sub_folder).save()

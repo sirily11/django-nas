@@ -17,6 +17,7 @@ django-rq = "*"
 coral = "*"
 django-mptt = "*"
 django-elasticsearch-dsl = "*"
+boto3 = "*"
 
 [requires]
 python_version = "3.7"

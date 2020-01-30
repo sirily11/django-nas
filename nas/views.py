@@ -1,3 +1,5 @@
+from typing import Any
+
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 from django.urls import reverse
@@ -17,6 +19,8 @@ import zipfile
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework import filters
+
+
 # from .documents import DocDocument
 
 
@@ -152,3 +156,21 @@ def download(request, folder):
     # return as zipfile
     response['Content-Disposition'] = f'attachment; filename={zipfile_name}'
     return response
+
+
+@csrf_exempt
+def upload(request, file_index):
+    from .key import aws_settings
+    import boto3
+
+    s3_client = boto3.client('s3', aws_access_key_id=aws_settings['access_id'],
+                             aws_secret_access_key=aws_settings['access_key'])
+    file = File.objects.filter(id=file_index).first()
+    if file:
+        try:
+            response = s3_client.upload_file(file.file.path, aws_settings['bucket_name'], file.file.name)
+        except Exception as e:
+            return JsonResponse(data={"message": str(e)}, status=500)
+    else:
+        return JsonResponse(status=404, data={"message": "file not found"})
+    return JsonResponse(data={"status": "Ok"}, status=201)

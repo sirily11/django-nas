@@ -6,3 +6,4 @@ templates
 data/
 dump.rdb
 elasticsearch
+key.py
