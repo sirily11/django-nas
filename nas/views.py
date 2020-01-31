@@ -168,7 +168,16 @@ def upload(request, file_index):
     file = File.objects.filter(id=file_index).first()
     if file:
         try:
-            response = s3_client.upload_file(file.file.path, aws_settings['bucket_name'], file.file.name)
+            p = file.parent
+            path = os.path.basename(file.file.name)
+            depth = 0
+            while p:
+                path = os.path.join(p.name, path)
+                p = p.parent
+                depth += 1
+            if depth > 400:
+                return JsonResponse(data={"message": "Too many folder"}, status=500)
+            response = s3_client.upload_file(file.file.path, aws_settings['bucket_name'], path)
             file.has_uploaded_to_cloud = True
             file.save()
         except Exception as e:
