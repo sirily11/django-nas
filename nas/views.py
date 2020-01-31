@@ -169,6 +169,8 @@ def upload(request, file_index):
     if file:
         try:
             response = s3_client.upload_file(file.file.path, aws_settings['bucket_name'], file.file.name)
+            file.has_uploaded_to_cloud = True
+            file.save()
         except Exception as e:
             return JsonResponse(data={"message": str(e)}, status=500)
     else:

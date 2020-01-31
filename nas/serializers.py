@@ -17,7 +17,7 @@ class FileSerializer(serializers.ModelSerializer):
         model = File
         fields = ("id", "created_at", "parent",
                   "description", "user", "size",
-                  "modified_at", "file", "object_type", "filename", "transcode_filepath", 'cover')
+                  "modified_at", "file", "object_type", "filename", "transcode_filepath", 'cover', 'has_uploaded_to_cloud')
 
 
 class DocumentSerializer(serializers.ModelSerializer):

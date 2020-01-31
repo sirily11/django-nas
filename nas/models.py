@@ -97,6 +97,7 @@ class File(models.Model):
     file = models.FileField(upload_to=user_directory_path)
     transcode_filepath = models.FileField(null=True, blank=True)
     cover = models.FileField(null=True, blank=True)
+    has_uploaded_to_cloud = models.BooleanField(default=False, null=True, blank=True)
 
     def filename(self):
         return self.file.name
@@ -150,6 +151,7 @@ class Document(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     size = models.FloatField(blank=True, null=True)
     modified_at = models.DateTimeField(auto_now_add=True)
+
 
 
 def get_filename(path, file_id) -> (str, str):
