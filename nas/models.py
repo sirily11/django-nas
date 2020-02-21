@@ -42,7 +42,8 @@ class Folder(models.Model):
             total_size += file.size
 
         for folder in folders:
-            total_size += folder.size
+            if folder.size:
+                total_size += folder.size
 
         return total_size
 
@@ -57,7 +58,7 @@ class Folder(models.Model):
 
         total_size = sum(f.size for f in files if f.size)
         for folder in folders:
-            total_size += folder.total_size
+            total_size += folder.calculate_total_size
 
         self.size = total_size
         self.save()

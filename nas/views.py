@@ -204,4 +204,4 @@ def update_total_size(parent=None):
     else:
         folders = Folder.objects.filter(parent=parent).all()
     for folder in folders:
-        size = folder.total_size
+        size = folder.calculate_total_size
