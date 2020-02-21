@@ -35,9 +35,10 @@ class FolderViewSet(viewsets.ModelViewSet):
     serializer_class = FolderSerializer
 
     def update(self, request, *args, **kwargs):
-        super().update(request, *args, **kwargs)
+        res = super().update(request, *args, **kwargs)
         queue = django_rq.get_queue()
         queue.enqueue(update_total_size)
+        return res
 
     def list(self, request, *args, **kwargs):
         # Get root
@@ -75,9 +76,10 @@ class FileViewSet(viewsets.ModelViewSet):
     search_fields = ['file']
 
     def update(self, request, *args, **kwargs):
-        super().update(request, *args, **kwargs)
+        res = super().update(request, *args, **kwargs)
         queue = django_rq.get_queue()
         queue.enqueue(update_total_size, request.data['parent'])
+        return res
 
     # def get_queryset(self):
     #     queryset = File.objects.all()
