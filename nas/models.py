@@ -34,34 +34,33 @@ class Folder(models.Model):
     modified_at = models.DateTimeField(auto_now_add=True)
 
     @property
-    def total_size_fast(self):
+    def total_size(self):
+        files = File.objects.filter(parent=self.pk).all()
         folders = Folder.objects.filter(parent=self.pk).all()
-        s = sum(o.total_size for o in folders)
-        return s + self.size
+        total_size = 0
+        for file in files:
+            total_size += file.size
+
+        for folder in folders:
+            total_size += folder.size
+
+        return total_size
 
     @property
-    def total_size(self):
+    def calculate_total_size(self):
         """
         Get total size for the current directory in bytes
         :return:
         """
-        total_size = self.size if self.size else 0
+        files = File.objects.filter(parent=self.pk).all()
         folders = Folder.objects.filter(parent=self.pk).all()
 
+        total_size = sum(f.size for f in files if f.size)
         for folder in folders:
-            # If size field is empty
-            if not folder.size:
-                size = File.objects.filter(id=folder.id).aggregate(Sum('size'))['size__sum']
-                if size:
-                    folder.size = size
-                    folder.save()
-                total_size += folder.total_size
+            total_size += folder.total_size
 
-            else:
-                fast = folder.total_size_fast
-                if fast:
-                    total_size += fast
-
+        self.size = total_size
+        self.save()
         return total_size
 
     def parents(self):
@@ -151,7 +150,6 @@ class Document(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     size = models.FloatField(blank=True, null=True)
     modified_at = models.DateTimeField(auto_now_add=True)
-
 
 
 def get_filename(path, file_id) -> (str, str):

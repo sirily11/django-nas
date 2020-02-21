@@ -1,5 +1,3 @@
-from typing import Any
-
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 from django.urls import reverse
@@ -19,6 +17,8 @@ import zipfile
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework import filters
+from django_rq import job
+import django_rq
 
 
 # from .documents import DocDocument
@@ -33,6 +33,11 @@ class UserViewSet(viewsets.ModelViewSet):
 class FolderViewSet(viewsets.ModelViewSet):
     queryset = Folder.objects.all()
     serializer_class = FolderSerializer
+
+    def update(self, request, *args, **kwargs):
+        super().update(request, *args, **kwargs)
+        queue = django_rq.get_queue()
+        queue.enqueue(update_total_size)
 
     def list(self, request, *args, **kwargs):
         # Get root
@@ -68,6 +73,11 @@ class FileViewSet(viewsets.ModelViewSet):
     queryset = File.objects.all()
     serializer_class = FileSerializer
     search_fields = ['file']
+
+    def update(self, request, *args, **kwargs):
+        super().update(request, *args, **kwargs)
+        queue = django_rq.get_queue()
+        queue.enqueue(update_total_size, request.data['parent'])
 
     # def get_queryset(self):
     #     queryset = File.objects.all()
@@ -185,3 +195,13 @@ def upload(request, file_index):
     else:
         return JsonResponse(status=404, data={"message": "file not found"})
     return JsonResponse(data={"status": "Ok"}, status=201)
+
+
+@job
+def update_total_size(parent=None):
+    if not parent:
+        folders = Folder.objects.filter(parent__isnull=True).all()
+    else:
+        folders = Folder.objects.filter(parent=parent).all()
+    for folder in folders:
+        size = folder.total_size
