@@ -43,6 +43,23 @@ services:
     depends_on:
       - queue
 #      - elasticsearch
+  ftpd_server:
+    image: stilliard/pure-ftpd
+    container_name: ftp-container
+    ports:
+      - "21:21"
+      - "30000-30009:30000-30009"
+    volumes: # remember to replace /folder_on_disk/ with the path to where you want to store the files on the host machine
+      - "./django_nas/media:/home/username/"
+      - "./passwd:/etc/pure-ftpd/passwd"
+      - "./ssl:/etc/ssl/private/"
+    environment:
+      PUBLICHOST: "localhost"
+      FTP_USER_NAME: sirily11
+      FTP_USER_PASS: somepassword
+      FTP_USER_HOME: /home/username
+      # ADDED_FLAGS: "--tls=2"
+    restart: always
 
   redis:
     image: redis:latest
@@ -60,22 +77,3 @@ services:
 #      sh -c "python manage.py search_index --rebuild -f"
 #    depends_on:
 #      - django
-
-
-
-#  samba:
-#   container_name: samba
-#   hostname: samba
-#   image: sixeyed/samba
-#   volumes:
-#      - ./django-nas/samba:/mnt/sharing
-#   ports:
-#     - 139:139
-#     - 445:445
-#     - 137:137
-#     - 138:138
-##      - "445:445"
-##      - "137:137/udp"
-##      - "138:138/udp"
-#   command: samba.sh -s "file;/mnt/sharing/file;yes;no;yes;all"
-#   restart: always

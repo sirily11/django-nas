@@ -12,6 +12,7 @@ CHOICES = (("Image", "image"), ("Text", "txt"), ("File", "file"))
 VIDEO_EXT = ['.m4v', '.mov', '.m4a', '.wmv', '.mp4']
 
 
+# Generate file path based on its parent
 def user_directory_path(instance, filename: str):
     path = filename
     p = instance.parent

@@ -7,3 +7,6 @@ data/
 dump.rdb
 elasticsearch
 key.py
+passwd/
+ssl/
+user/
