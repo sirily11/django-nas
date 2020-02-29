@@ -16,7 +16,7 @@ deb-src http://security.debian.org stretch/updates main\n\
 RUN apt-get -y update && \
 	apt-get -y --force-yes --fix-missing install dpkg-dev debhelper &&\
 	apt-get -y build-dep pure-ftpd
-
+	
 
 # Build from source - we need to remove the need for CAP_SYS_NICE and CAP_DAC_READ_SEARCH
 RUN mkdir /tmp/pure-ftpd/ && \
@@ -53,7 +53,7 @@ COPY --from=builder /tmp/pure-ftpd/*.deb /tmp/pure-ftpd/
 # install the new deb files
 RUN dpkg -i /tmp/pure-ftpd/pure-ftpd-common*.deb &&\
 	dpkg -i /tmp/pure-ftpd/pure-ftpd_*.deb && \
-	rm -Rf /tmp/pure-ftpd
+	rm -Rf /tmp/pure-ftpd 
 
 # Prevent pure-ftpd upgrading
 RUN apt-mark hold pure-ftpd pure-ftpd-common
