@@ -50,7 +50,7 @@ services:
       - "21:21"
       - "30000-30009:30000-30009"
     volumes: # remember to replace /folder_on_disk/ with the path to where you want to store the files on the host machine
-      - "./django_nas/media:/home/username/"
+      - "./data:/home/username/"
       - "./passwd:/etc/pure-ftpd/passwd"
       - "./ssl:/etc/ssl/private/"
     environment:
@@ -58,6 +58,7 @@ services:
       FTP_USER_NAME: sirily11
       FTP_USER_PASS: somepassword
       FTP_USER_HOME: /home/username
+      FTP_MAX_CLIENTS: 100
       # ADDED_FLAGS: "--tls=2"
     restart: always
 
