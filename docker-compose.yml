@@ -59,6 +59,7 @@ services:
       FTP_USER_PASS: somepassword
       FTP_USER_HOME: /home/username
       FTP_MAX_CLIENTS: 100
+      FTP_MAX_CONNECTIONS: 100
       # ADDED_FLAGS: "--tls=2"
     restart: always
 
