@@ -44,7 +44,7 @@ services:
       - queue
 #      - elasticsearch
   ftpd_server:
-    image: stilliard/pure-ftpd
+    build: ./docker/ftp
     container_name: ftp-container
     ports:
       - "21:21"
