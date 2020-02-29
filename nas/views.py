@@ -85,8 +85,10 @@ class FileViewSet(viewsets.ModelViewSet):
             file_id = kwargs.get('pk')
             file: File = File.objects.get(id=file_id)
             original_path = file.file.path
+            original_name = file.file.name
             new_path = file.file.path.replace(os.path.basename(original_path), new_file_name)
-            file.file.name = new_path
+            new_name = original_name.replace(os.path.basename(original_path), new_file_name)
+            file.file.name = new_name
             os.rename(original_path, new_path)
             file.save()
         res = super().update(request, *args, **kwargs)
