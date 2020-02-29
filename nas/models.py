@@ -5,8 +5,8 @@ import os
 import ffmpeg
 from os.path import dirname, join, splitext, exists, basename
 from django_rq import job
-from django.conf import settings
 from django.db.models import Sum
+from django.conf import settings
 
 CHOICES = (("Image", "image"), ("Text", "txt"), ("File", "file"))
 VIDEO_EXT = ['.m4v', '.mov', '.m4a', '.wmv', '.mp4']

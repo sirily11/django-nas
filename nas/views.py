@@ -36,8 +36,11 @@ class FolderViewSet(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         res = super().update(request, *args, **kwargs)
-        queue = django_rq.get_queue()
-        queue.enqueue(update_total_size)
+        try:
+            queue = django_rq.get_queue()
+            queue.enqueue(update_total_size)
+        except Exception:
+            pass
         return res
 
     def list(self, request, *args, **kwargs):
@@ -76,21 +79,35 @@ class FileViewSet(viewsets.ModelViewSet):
     search_fields = ['file']
 
     def update(self, request, *args, **kwargs):
+        new_file_name = request.data.get('filename')
+
+        if new_file_name:
+            file_id = kwargs.get('pk')
+            file: File = File.objects.get(id=file_id)
+            original_path = file.file.path
+            new_path = file.file.path.replace(os.path.basename(original_path), new_file_name)
+            file.file.name = new_path
+            os.rename(original_path, new_path)
+            file.save()
         res = super().update(request, *args, **kwargs)
-        queue = django_rq.get_queue()
-        queue.enqueue(update_total_size, request.data['parent'])
+        try:
+            queue = django_rq.get_queue()
+            queue.enqueue(update_total_size, request.data['parent'])
+        except Exception:
+            pass
         return res
 
-    # def get_queryset(self):
-    #     queryset = File.objects.all()
-    #     search = self.request.query_params.get("search")
-    #     if search:
-    #         docs = FileDocument.search().query("match", file=search).to_queryset()
-    #         queryset = docs
-    #         # queryset = NewsFeed.objects.filter(
-    #         #     content__fts=search).order_by("-posted_time")
-    #
-    #     return queryset
+    # def perform_update(self, serializer: FileSerializer):
+    #     # serializer.save()
+    #     new_file_name = self.request.data.get('filename')
+    #     if new_file_name:
+    #         file_id = serializer.data.get('id')
+    #         file: File = File.objects.get(id=file_id)
+    #         original_path = file.file.path
+    #         new_path = file.file.path.replace(os.path.basename(original_path), new_file_name)
+    #         # file.file.name = new_path
+    #         # os.rename(original_path, new_path)
+    #     serializer.save()
 
 
 @method_decorator(csrf_exempt, name='dispatch')
