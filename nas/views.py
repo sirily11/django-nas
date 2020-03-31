@@ -131,26 +131,19 @@ class DocumentViewSet(viewsets.ModelViewSet):
 @method_decorator(csrf_exempt, name='dispatch')
 class SystemInfoView(generics.RetrieveAPIView):
     def get(self, request, *args, **kwargs):
-        cpu = psutil.cpu_percent()
-        disk = psutil.disk_usage("/")
-        if sys.platform.startswith('linux'):
-            disk = psutil.disk_usage(os.getcwd())
-        memory = psutil.virtual_memory()
-        data = {
-            "cpu": cpu,
-            "disk": {"used": disk.used, "total": disk.total},
-            "memory": {"used": memory.used, "total": memory.total}
-        }
         try:
-            from coral.enviro.board import EnviroBoard
-            enviro = EnviroBoard()
-            data['temperature'] = enviro.temperature
-            data['humidity'] = enviro.humidity
-            data['pressure'] = enviro.pressure
-        except Exception as e:
+            cpu = psutil.cpu_percent()
+            # disk = psutil.disk_usage(settings.MOUNT_POINT)
+            disk = psutil.disk_usage(os.getcwd())
+            memory = psutil.virtual_memory()
+            data = {
+                "cpu": cpu,
+                "disk": {"used": disk.used, "total": disk.total},
+                "memory": {"used": memory.used, "total": memory.total}
+            }
+            return Response(data=data)
+        except Exception:
             pass
-
-        return Response(data=data)
 
 
 def index(request):

@@ -70,27 +70,27 @@ services:
     volumes:
       - ./data:/data
 
-  samba:
-    image: dperson/samba:armhf
-    environment:
-      TZ: 'EST5EDT'
-    networks:
-      - default
-    ports:
-      - "137:137/udp"
-      - "138:138/udp"
-      - "139:139/tcp"
-      - "445:445/tcp"
-    read_only: false
-    tmpfs:
-      - /tmp
-    restart: unless-stopped
-    stdin_open: true
-    tty: true
-    volumes:
-      - ./django_nas/media:/mnt:z
-      - ./share:/mnt2:z
-    command: '-s "nas-file;/mnt" -s "share;/mnt2;yes;no;no;bob" -u "sirily11;somepassword" -p'
+#  samba:
+#    image: dperson/samba:armhf
+#    environment:
+#      TZ: 'EST5EDT'
+#    networks:
+#      - default
+#    ports:
+#      - "137:137/udp"
+#      - "138:138/udp"
+#      - "139:139/tcp"
+#      - "445:445/tcp"
+#    read_only: false
+#    tmpfs:
+#      - /tmp
+#    restart: unless-stopped
+#    stdin_open: true
+#    tty: true
+#    volumes:
+#      - ./django_nas/media:/mnt:z
+#      - ./share:/mnt2:z
+#    command: '-s "nas-file;/mnt" -s "share;/mnt2;yes;no;no;bob" -u "sirily11;somepassword" -p'
 
 #  reindex:
 #    build: ./docker

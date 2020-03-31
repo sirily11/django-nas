@@ -7,6 +7,7 @@ from os.path import dirname, join, splitext, exists, basename
 from django_rq import job
 from django.db.models import Sum
 from django.conf import settings
+from datetime import datetime
 
 CHOICES = (("Image", "image"), ("Text", "txt"), ("File", "file"))
 VIDEO_EXT = ['.m4v', '.mov', '.m4a', '.wmv', '.mp4']
@@ -114,6 +115,8 @@ class File(models.Model):
         filename, file_extension = os.path.splitext(self.file.path)
         if self.parent:
             folder = Folder.objects.get(id=self.parent.id)
+
+        self.modified_at = datetime.now()
         super(File, self).save(*args, **kwargs)
 
         if folder:
@@ -176,7 +179,7 @@ def transcode_video(path, file_id):
     if not exists(join(settings.MEDIA_ROOT, "transcode-video")):
         os.mkdir(join(settings.MEDIA_ROOT, "transcode-video"))
     stream = ffmpeg.input(path)
-    stream = ffmpeg.output(stream, output_path)
+    stream = ffmpeg.output(stream, output_path, pix_fmt='yuv420p', s="1920x1080", a="aac")
     ffmpeg.run(stream)
     file.transcode_filepath.name = join("transcode-video", name)
     file.save()
