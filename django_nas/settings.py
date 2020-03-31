@@ -113,6 +113,8 @@ RQ = {
     'DEFAULT_RESULT_TTL': 25000,
 }
 
+TRANSCODE_VIDEO = False
+
 ELASTICSEARCH_DSL = {
     'default': {
         'hosts': 'elasticsearch:9200'

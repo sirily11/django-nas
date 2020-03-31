@@ -124,8 +124,11 @@ class File(models.Model):
             folder.save()
 
         if file_extension.lower() in VIDEO_EXT and self.cover.name is None:
+            # If file is video
             queue = django_rq.get_queue()
             queue.enqueue(generate_video_cover, self.file.path, self.pk)
+            if settings.TRANSCODE_VIDEO:
+                queue.enqueue(transcode_video, self.file.path, self.pk)
 
     def delete(self, *args, **kwargs):
         folder = None
@@ -160,17 +163,22 @@ def get_filename(path, file_id) -> (str, str):
     return name, output_path
 
 
+def get_video_filename(path, file_id) -> (str, str):
+    name = f"{file_id}-{splitext(basename(path))[0]}.mp4"
+    output_path = join(settings.MEDIA_ROOT, "transcode-video", name)
+    return name, output_path
+
+
 @job
 def transcode_video(path, file_id):
-    name, output_path = get_filename(path, file_id)
+    name, output_path = get_video_filename(path, file_id)
     file = File.objects.filter(pk=file_id).first()
-    if not exists(join(settings.MEDIA_ROOT, "transcodes")):
-        os.mkdir(join(settings.MEDIA_ROOT, "transcodes"))
+    if not exists(join(settings.MEDIA_ROOT, "transcode-video")):
+        os.mkdir(join(settings.MEDIA_ROOT, "transcode-video"))
     stream = ffmpeg.input(path)
-
     stream = ffmpeg.output(stream, output_path)
     ffmpeg.run(stream)
-    file.transcode_filepath.name = join("transcodes", name)
+    file.transcode_filepath.name = join("transcode-video", name)
     file.save()
     return output_path
 
