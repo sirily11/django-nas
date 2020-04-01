@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 from django.urls import reverse
@@ -33,6 +34,18 @@ class UserViewSet(viewsets.ModelViewSet):
 class FolderViewSet(viewsets.ModelViewSet):
     queryset = Folder.objects.all()
     serializer_class = FolderSerializer
+
+    def create(self, request, *args, **kwargs):
+        parent = request.data.get('parent')
+        name = request.data.get("name")
+        if parent == "":
+            parent = None
+
+        query = Folder.objects.filter(parent_id=parent, name=name)
+        if query.exists():
+            serializer = FolderSerializer(query.first())
+            return Response(data=serializer.data, status=200)
+        return super().create(request, *args, **kwargs)
 
     def update(self, request, *args, **kwargs):
         res = super().update(request, *args, **kwargs)
