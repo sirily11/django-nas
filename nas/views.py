@@ -2,6 +2,8 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 from django.urls import reverse
+
+from nas.utils import get_list_files
 from .serializers import FolderSerializer, \
     FileSerializer, UserSerializer, FolderBasicSerializer, DocumentSerializer, \
     DocumentAbstractSerializer
@@ -183,7 +185,7 @@ def download(request, folder):
     # response = HttpResponse(content_type='application/zip')
 
     folder = Folder.objects.get(id=folder)
-    files = File.objects.filter(parent=folder).all()
+    files = get_list_files(folder)
 
     z = zipstream.ZipFile(mode='w', allowZip64=True)
     for file in files:

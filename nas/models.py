@@ -107,6 +107,9 @@ class File(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         folder = None
+        if not self.file:
+            super(File, self).save(*args, **kwargs)
+            return
 
         size = self.file.size
         self.size = size
