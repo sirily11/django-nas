@@ -182,8 +182,9 @@ def download(request, folder):
     """Download archive zip file of code snippets"""
     # response = HttpResponse(content_type='application/zip')
 
-    folders = Folder.objects.get(id=folder)
+    folder = Folder.objects.get(id=folder)
     files = File.objects.filter(parent=folder).all()
+
     z = zipstream.ZipFile(mode='w', allowZip64=True)
     for file in files:
         z.write(file.file.path, file.file.name)
