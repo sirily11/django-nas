@@ -20,6 +20,8 @@ from django.utils.decorators import method_decorator
 from rest_framework import filters
 from django_rq import job
 import django_rq
+import zipstream
+from django.http import StreamingHttpResponse
 
 
 # from .documents import DocDocument
@@ -179,15 +181,14 @@ def download(request, folder):
             data={"download_url": request.build_absolute_uri(reverse("download", kwargs={"folder": folder}))})
     """Download archive zip file of code snippets"""
     # response = HttpResponse(content_type='application/zip')
-    response = HttpResponse(content_type='application/zip')
-    zf = zipfile.ZipFile(response, 'w')
-    folder = Folder.objects.get(id=folder)
+
+    folders = Folder.objects.get(id=folder)
     files = File.objects.filter(parent=folder).all()
-
+    z = zipstream.ZipFile(mode='w', allowZip64=True)
     for file in files:
-        with open(file.file.path, 'rb') as f:
-            zf.writestr(file.file.name, f.read())
+        z.write(file.file.path, file.file.name)
 
+    response = StreamingHttpResponse(z, content_type='application/zip')
     zipfile_name = f"{folder.name}.zip"
 
     # return as zipfile
