@@ -45,7 +45,7 @@ class FolderBasicSerializer(serializers.ModelSerializer):
         model = Folder
         fields = ("id", "created_at", "name",
                   "description", "user", "size",
-                  "modified_at", "parents", "total_size")
+                  "modified_at", "parents", "total_size", "parent")
 
 
 class FolderSerializer(serializers.ModelSerializer):
