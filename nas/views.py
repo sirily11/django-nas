@@ -116,18 +116,6 @@ class FileViewSet(viewsets.ModelViewSet):
             pass
         return res
 
-    # def perform_update(self, serializer: FileSerializer):
-    #     # serializer.save()
-    #     new_file_name = self.request.data.get('filename')
-    #     if new_file_name:
-    #         file_id = serializer.data.get('id')
-    #         file: File = File.objects.get(id=file_id)
-    #         original_path = file.file.path
-    #         new_path = file.file.path.replace(os.path.basename(original_path), new_file_name)
-    #         # file.file.name = new_path
-    #         # os.rename(original_path, new_path)
-    #     serializer.save()
-
 
 @method_decorator(csrf_exempt, name='dispatch')
 class DocumentViewSet(viewsets.ModelViewSet):

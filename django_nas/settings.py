@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'nas',
     'rest_framework',
+    'corsheaders',
     'django_cleanup.apps.CleanupConfig',
     'django_rq',
     'django_filters',
@@ -55,13 +56,13 @@ REST_FRAMEWORK = {
 }
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'django_nas.urls'
@@ -114,7 +115,20 @@ DYNAMIC_PREFERENCES = {
 
 WSGI_APPLICATION = 'django_nas.wsgi.application'
 CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOW_HEADERS = [
+    'accept',
+    'accept-encoding',
+    'authorization',
+    'content-type',
+    'dnt',
+    'origin',
+    'user-agent',
+    'x-csrftoken',
+    'x-requested-with',
+    'xhr'
+]
 CORS_ALLOW_METHODS = [
+    'HEAD',
     'DELETE',
     'GET',
     'OPTIONS',
