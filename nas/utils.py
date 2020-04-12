@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Tuple, Optional
 
 from nas.models import Folder, File
 from pathlib import PurePath
@@ -31,3 +31,29 @@ def has_parent(path: str) -> bool:
     return len(parts) > 1
 
 
+def create_folders(paths: List[str], parent: Optional[Folder]) -> Tuple[str, Folder]:
+    """
+    Recursively create folder.
+    For example, if you have path a/b/c.txt in folder root. It will first create
+    folder a, then create folder b and then return c.txt and folder b object
+    :param paths: list of file paths
+    :param parent: parent folder, None if parent is root
+    :return: path base name and last folder object
+    """
+    if len(paths) == 1:
+        return paths[0], parent
+
+    sub_folders = Folder.objects.filter(parent=parent).all()
+    sub_parent = None
+    folder_name = paths[0]
+    rest_paths = paths[1:]
+    for folder in sub_folders:
+        if folder.name == folder_name:
+            sub_parent = folder
+            break
+
+    if not sub_parent:
+        sub_parent = Folder.objects.create(name=folder_name, parent=parent)
+        sub_parent.save()
+
+    return create_folders(rest_paths, sub_parent)

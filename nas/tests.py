@@ -1,7 +1,7 @@
 from django.test import TestCase
 from rest_framework.test import force_authenticate, APIRequestFactory
 
-from nas.utils import get_list_files
+from nas.utils import get_list_files, create_folders, has_parent
 from .views import FolderViewSet, FileViewSet
 from .models import Folder, File as FileObj
 from django.contrib.auth.models import User
@@ -164,3 +164,67 @@ class GetFilesByFolderTest(TestCase):
         [FileObj.objects.create(parent=self.sub_sub_folder2) for i in range(10)]
         files = get_list_files(self.base)
         self.assertEqual(len(files), 50)
+
+
+class FolderUploadTest(TestCase):
+    def setUp(self):
+        self.user = User.objects.create(email="abc@abc.com", password="abc")
+
+    def test_has_parent(self):
+        path = "a/b/c.txt"
+        has = has_parent(path)
+        self.assertTrue(has)
+
+    def test_has_parent2(self):
+        path = "c.txt"
+        has = has_parent(path)
+        self.assertFalse(has)
+
+    def test_create_folders(self):
+        """
+        Creat list of folders in root
+        :return:
+        """
+        base, folder = create_folders(["a", "b", "c.txt"], None)
+        self.assertEqual(base, "c.txt")
+        self.assertEqual(folder.name, "b")
+        self.assertEqual(folder.parent.name, "a")
+        self.assertEqual(folder.parent.parent, None)
+
+    def test_create_folders2(self):
+        """
+        Create list of folders where some of the folder already exist
+        :return:
+        """
+        a = Folder.objects.create(name="a")
+        base, folder = create_folders(["a", "b", "c.txt"], None)
+        self.assertEqual(base, "c.txt")
+        self.assertEqual(folder.name, "b")
+        self.assertEqual(folder.parent, a)
+        self.assertEqual(folder.parent.parent, None)
+
+    def test_create_folders2_2(self):
+        """
+        Create list of folders where some of the folder already exist
+        :return:
+        """
+        a = Folder.objects.create(name="a")
+        b = Folder.objects.create(name="b", parent=a)
+        base, folder = create_folders(["a", "b", "c.txt"], None)
+        self.assertEqual(base, "c.txt")
+        self.assertEqual(folder, b)
+        self.assertEqual(folder.parent, a)
+        self.assertEqual(folder.parent.parent, None)
+
+    def test_create_folders3(self):
+        """
+        Create list of folders where base has folders but doesn't match
+        :return:
+        """
+        a = Folder.objects.create(name="a")
+        b = Folder.objects.create(name="b")
+        base, folder = create_folders(["c", "b", "c.txt"], None)
+        self.assertEqual(base, "c.txt")
+        self.assertEqual(folder.name, "b")
+        self.assertEqual(folder.parent.name, "c")
+        self.assertEqual(folder.parent.parent, None)
