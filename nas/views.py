@@ -1,8 +1,11 @@
+from typing import Optional
+
 from django.core.exceptions import ValidationError
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 from django.urls import reverse
-from nas.utils import get_list_files
+from nas.utils import get_list_files, has_parent, create_folders
 from .serializers import FolderSerializer, \
     FileSerializer, UserSerializer, FolderBasicSerializer, DocumentSerializer, \
     DocumentAbstractSerializer, NumPagePagination
@@ -14,8 +17,7 @@ from rest_framework import generics
 import psutil
 from django.conf import settings
 import os
-import sys
-import zipfile
+from pathlib import PurePath
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from rest_framework import filters
@@ -113,6 +115,25 @@ class FileViewSet(viewsets.ModelViewSet):
     queryset = File.objects.all()
     serializer_class = FileSerializer
     search_fields = ['file']
+
+    def create(self, request, *args, **kwargs):
+        file: InMemoryUploadedFile = request.data.get("file")
+        parent: str = request.data.get("parent")
+        parent_folder: Optional[Folder] = Folder.objects.get(parent=parent) \
+            if Folder.objects.filter(
+            parent=parent).exists() else None
+        paths = request.data.get("paths")
+
+        if file and paths:
+            if has_parent(paths):
+                paths = list(PurePath(paths).parts)
+                base_name, folder = create_folders(paths, parent_folder)
+                request.data['parent'] = str(folder.id) if folder else None
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=201, headers=headers)
 
     def update(self, request, *args, **kwargs):
         new_file_name = request.data.get('filename')

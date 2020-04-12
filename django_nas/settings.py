@@ -42,7 +42,6 @@ INSTALLED_APPS = [
     'django_rq',
     'django_filters',
     'django_elasticsearch_dsl',
-    'dynamic_preferences'
 ]
 
 

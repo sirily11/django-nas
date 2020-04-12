@@ -1,13 +1,13 @@
 from django.test import TestCase
+from rest_framework.reverse import reverse
 from rest_framework.test import force_authenticate, APIRequestFactory
 
 from nas.utils import get_list_files, create_folders, has_parent
 from .views import FolderViewSet, FileViewSet
 from .models import Folder, File as FileObj
 from django.contrib.auth.models import User
-from os.path import join
-from os import remove
 from django.core.files import File
+from django.core.files.uploadedfile import SimpleUploadedFile
 import mock
 import os
 
@@ -228,3 +228,22 @@ class FolderUploadTest(TestCase):
         self.assertEqual(folder.name, "b")
         self.assertEqual(folder.parent.name, "c")
         self.assertEqual(folder.parent.parent, None)
+
+    def test_upload(self):
+        factory = APIRequestFactory()
+        view = FileViewSet.as_view({'post': 'create'})
+        file = SimpleUploadedFile("a/file.mp4", b"file_content", content_type="video/mp4")
+        request = factory.post('/files/', {"file": file, "paths": "a/file.mp4"})
+        response = view(request)
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(Folder.objects.filter(name='a').exists())
+
+    def test_upload2(self):
+        factory = APIRequestFactory()
+        view = FileViewSet.as_view({'post': 'create'})
+        file = SimpleUploadedFile("a/b/file.mp4", b"file_content", content_type="video/mp4")
+        request = factory.post('/files/', {"file": file, "paths": "a/b/file.mp4"})
+        response = view(request)
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(Folder.objects.filter(name='a').exists())
+        self.assertTrue(Folder.objects.filter(name='b').exists())
