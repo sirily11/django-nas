@@ -36,8 +36,9 @@ services:
     volumes:
       - ./:/usr/local/django_nas
     command: >
-      sh -c "python manage.py migrate &&
-             python manage.py runserver 0.0.0.0:80"
+      sh -c"python mange.py makemigrations &&
+            python manage.py migrate &&
+            python manage.py runserver 0.0.0.0:80"
     ports:
       - 80:80
     depends_on:

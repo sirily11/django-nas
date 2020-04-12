@@ -121,7 +121,7 @@ class FileViewSet(viewsets.ModelViewSet):
         parent: str = request.data.get("parent")
         parent_folder: Optional[Folder] = Folder.objects.get(parent=parent) \
             if Folder.objects.filter(
-            parent=parent).exists() else None
+            parent=parent).exists() and parent is not None else None
         paths = request.data.get("paths")
 
         if file and paths:

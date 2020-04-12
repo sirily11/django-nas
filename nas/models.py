@@ -94,7 +94,7 @@ class File(models.Model):
     size = models.FloatField(blank=True, null=True)
     modified_at = models.DateTimeField(auto_now_add=True)
     parent = models.ForeignKey(Folder, on_delete=models.CASCADE, related_name="files", null=True, blank=True)
-    file = models.FileField(upload_to=user_directory_path)
+    file = models.FileField(upload_to=user_directory_path, max_length=1000000)
     transcode_filepath = models.FileField(null=True, blank=True)
     cover = models.FileField(null=True, blank=True)
     has_uploaded_to_cloud = models.BooleanField(default=False, null=True, blank=True)

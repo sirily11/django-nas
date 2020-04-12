@@ -245,5 +245,5 @@ class FolderUploadTest(TestCase):
         request = factory.post('/files/', {"file": file, "paths": "a/b/file.mp4"})
         response = view(request)
         self.assertEqual(response.status_code, 201)
-        self.assertTrue(Folder.objects.filter(name='a').exists())
-        self.assertTrue(Folder.objects.filter(name='b').exists())
+        self.assertEqual(len(Folder.objects.filter(name='a').all()), 1)
+        self.assertEqual(len(Folder.objects.filter(name='b').all()), 1)
