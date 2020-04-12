@@ -1,6 +1,7 @@
 from typing import List
 
 from nas.models import Folder, File
+from pathlib import PurePath
 
 
 def get_list_files(folder: Folder) -> List[File]:
@@ -17,3 +18,16 @@ def get_list_files(folder: Folder) -> List[File]:
         files = sub_files | files
 
     return files
+
+
+def has_parent(path: str) -> bool:
+    """
+    Return whether the path has parent
+    :param path: path like object. Ex: /a/b/c.txt
+    :return: true, if path has parent
+    """
+    p = PurePath(path)
+    parts = p.parts
+    return len(parts) > 1
+
+

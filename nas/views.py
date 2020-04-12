@@ -2,11 +2,10 @@ from django.core.exceptions import ValidationError
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
 from django.urls import reverse
-
 from nas.utils import get_list_files
 from .serializers import FolderSerializer, \
     FileSerializer, UserSerializer, FolderBasicSerializer, DocumentSerializer, \
-    DocumentAbstractSerializer
+    DocumentAbstractSerializer, NumPagePagination
 from .models import Folder, File, Document
 from rest_framework import viewsets
 from django.contrib.auth.models import User
@@ -86,6 +85,26 @@ class FolderViewSet(viewsets.ModelViewSet):
                 status=200)
         except Exception:
             return Response(status=500)
+
+
+class MusicView(generics.ListAPIView):
+    serializer_class = FileSerializer
+    filter_backends = [filters.SearchFilter]
+    search_fields = ['file']
+    pagination_class = NumPagePagination
+    page_size = 10
+
+    def get_queryset(self):
+        audio_ext = [".m4v", ".m4a", ".mp3"]
+        queryset = None
+        for ext in audio_ext:
+            files = File.objects.filter(file__contains=ext).order_by("file").all()
+            if not queryset:
+                queryset = files
+            else:
+                queryset = queryset | files
+
+        return queryset
 
 
 @method_decorator(csrf_exempt, name='dispatch')

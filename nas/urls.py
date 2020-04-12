@@ -12,6 +12,7 @@ urlpatterns = [
     path('api/', include(router.urls), name='api'),
     path('system/', views.SystemInfoView.as_view()),
     path('api/download/<int:folder>', views.download, name='download'),
+    path('api/music/', views.MusicView.as_view(), name='music'),
     path('', views.index, name='home'),
     path('s3/<int:file_index>', views.upload, name='upload')
 ]
