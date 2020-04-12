@@ -119,9 +119,9 @@ class FileViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         file: InMemoryUploadedFile = request.data.get("file")
         parent: str = request.data.get("parent")
-        parent_folder: Optional[Folder] = Folder.objects.get(parent=parent) \
-            if Folder.objects.filter(
-            parent=parent).exists() and parent is not None else None
+        parent_folder: Optional[Folder] = None
+        if parent:
+            parent_folder = Folder.objects.get(id=int(parent))
         paths = request.data.get("paths")
 
         if file and paths:

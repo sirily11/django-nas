@@ -216,6 +216,18 @@ class FolderUploadTest(TestCase):
         self.assertEqual(folder.parent, a)
         self.assertEqual(folder.parent.parent, None)
 
+    def test_create_folders2_3(self):
+        """
+        Create list of folders where some of the folder already exist
+        :return:
+        """
+        a = Folder.objects.create(name="a")
+        b = Folder.objects.create(name="b", parent=a)
+        base, folder = create_folders(["a", "b", "c.txt"], None)
+        base, folder = create_folders(['a', 'b', 'c.txt'], a)
+        self.assertEqual(Folder.objects.filter(name='a').count(), 2)
+        self.assertEqual(Folder.objects.filter(parent=a).count(), 2)
+
     def test_create_folders3(self):
         """
         Create list of folders where base has folders but doesn't match
@@ -241,9 +253,24 @@ class FolderUploadTest(TestCase):
     def test_upload2(self):
         factory = APIRequestFactory()
         view = FileViewSet.as_view({'post': 'create'})
-        file = SimpleUploadedFile("a/b/file.mp4", b"file_content", content_type="video/mp4")
+        file = SimpleUploadedFile("file.mp4", b"file_content", content_type="video/mp4")
         request = factory.post('/files/', {"file": file, "paths": "a/b/file.mp4"})
         response = view(request)
         self.assertEqual(response.status_code, 201)
         self.assertEqual(len(Folder.objects.filter(name='a').all()), 1)
         self.assertEqual(len(Folder.objects.filter(name='b').all()), 1)
+
+    def test_upload3(self):
+        factory = APIRequestFactory()
+        view = FileViewSet.as_view({'post': 'create'})
+        file = SimpleUploadedFile("file.mp4", b"file_content", content_type="video/mp4")
+        file2 = SimpleUploadedFile("file2.mp4", b"file_content", content_type="video/mp4")
+        request = factory.post('/files/', {"file": file, "paths": "a/file.mp4"})
+        response = view(request)
+        self.assertEqual(Folder.objects.filter(name='a').count(), 1)
+        a = Folder.objects.filter(name='a').first()
+        request = factory.post('/files/', {"file": file2, "paths": "a/file2.mp4", "parent": a.id})
+        response = view(request)
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(Folder.objects.filter(name='a').count(), 2)
+        self.assertEqual(Folder.objects.filter(parent=a).count(), 1)
