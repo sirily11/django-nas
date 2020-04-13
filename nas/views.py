@@ -23,6 +23,7 @@ from django_rq import job
 import django_rq
 import zipstream
 from django.http import StreamingHttpResponse
+from .utils import get_and_create_music_metadata
 
 
 # from .documents import DocDocument
@@ -92,12 +93,18 @@ class FolderViewSet(viewsets.ModelViewSet):
             return Response(status=500)
 
 
-class MusicView(generics.ListAPIView):
+class MusicView(generics.ListAPIView, generics.UpdateAPIView):
     serializer_class = FileSerializer
     filter_backends = [filters.SearchFilter]
     search_fields = ['file']
     pagination_class = NumPagePagination
     page_size = 10
+
+    def update(self, request, *args, **kwargs):
+        for file in self.get_queryset():
+            get_and_create_music_metadata(file)
+
+        return Response(data={"update": "ok"}, status=201)
 
     def get_queryset(self):
         audio_ext = [".m4v", ".m4a", ".mp3"]

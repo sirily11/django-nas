@@ -1,11 +1,10 @@
 from django.test import TestCase
 from rest_framework.reverse import reverse
 from rest_framework.test import force_authenticate, APIRequestFactory
-
 from nas.utils import get_list_files, create_folders, has_parent, \
     get_mp4_metadata, get_mp3_metadata, get_and_create_music_metadata
 from .utils2 import is_video, is_audio
-from .views import FolderViewSet, FileViewSet
+from .views import FolderViewSet, FileViewSet, MusicView
 from .models import Folder, File as FileObj, MusicMetaData
 from django.contrib.auth.models import User
 from django.core.files import File
@@ -304,12 +303,7 @@ class MusicMetaDataTest(TestCase):
     def test_get_and_create(self):
         with open('/test-music/test.mp3', 'rb') as f:
             nas_file = FileObj.objects.create(file=SimpleUploadedFile('test.mp3', f.read()))
-            nas_file.save()
-            print(nas_file.id)
-
-            get_and_create_music_metadata(nas_file)
             meta = MusicMetaData.objects.filter(file=nas_file).first()
-
             self.assertTrue(meta is not None)
             self.assertEqual(meta.title, "きみと恋のままで終われない いつも夢のままじゃいられない")
             self.assertTrue(meta.picture is not None)
@@ -317,12 +311,26 @@ class MusicMetaDataTest(TestCase):
     def test_get_and_create2(self):
         with open('/test-music/test.m4a', 'rb') as f:
             nas_file = FileObj.objects.create(file=SimpleUploadedFile('test.m4a', f.read()))
-            nas_file.save()
-            print(nas_file.id)
-
-            get_and_create_music_metadata(nas_file)
             meta = MusicMetaData.objects.filter(file=nas_file).first()
-
             self.assertTrue(meta is not None)
             self.assertEqual(meta.title, "Carry On")
             self.assertTrue(meta.picture is not None)
+
+    def test_update_metadata(self):
+        """
+        Update existing music file
+        :return:
+        """
+        with open('/test-music/test.mp3', 'rb') as f:
+            nas_file = FileObj.objects.create(file=SimpleUploadedFile('test.mp3', f.read()))
+
+        with open('/test-music/test.m4a', 'rb') as f:
+            nas_file = FileObj.objects.create(file=SimpleUploadedFile('test.m4a', f.read()))
+
+        factory = APIRequestFactory()
+        view = MusicView.as_view()
+        request = factory.patch('/music/')
+        response = view(request)
+        meta = MusicMetaData.objects.all()
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(len(meta), 2)

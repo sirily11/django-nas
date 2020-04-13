@@ -158,14 +158,22 @@ def get_and_create_music_metadata(file: File):
         title, album, artist, year, genre, cover, duration = get_mp3_metadata(file.file.path)
 
     if title:
-        metadata = MusicMetaData.objects.create(
-            title=title,
-            album=album,
-            artist=artist,
-            year=year,
-            picture=cover,
-            genre=genre,
-            duration=duration,
-            file=file
-        )
-        metadata.save()
+        if MusicMetaData.objects.filter(file=file).exists():
+            metadata: MusicMetaData = MusicMetaData.objects.filter(file=file).first()
+            metadata.title = title
+            metadata.album = album
+            metadata.year = year
+            metadata.picture = cover
+            metadata.genre = genre
+            metadata.duration = duration
+        else:
+            metadata = MusicMetaData.objects.create(
+                title=title,
+                album=album,
+                artist=artist,
+                year=year,
+                picture=cover,
+                genre=genre,
+                duration=duration,
+                file=file
+            )
