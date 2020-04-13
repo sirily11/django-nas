@@ -114,6 +114,7 @@ class FileViewSet(viewsets.ModelViewSet):
     filter_backends = [filters.SearchFilter]
     queryset = File.objects.all()
     serializer_class = FileSerializer
+    pagination_class = None
     search_fields = ['file']
 
     def create(self, request, *args, **kwargs):
