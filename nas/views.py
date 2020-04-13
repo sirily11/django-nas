@@ -109,12 +109,20 @@ class MusicView(generics.ListAPIView, generics.UpdateAPIView):
     def get_queryset(self):
         audio_ext = [".m4v", ".m4a", ".mp3"]
         queryset = None
+        artist = self.request.query_params.get('artist')
+        album = self.request.query_params.get('album')
         for ext in audio_ext:
             files = File.objects.filter(file__contains=ext).order_by("file").all()
             if not queryset:
                 queryset = files
             else:
                 queryset = queryset | files
+
+        if artist:
+            queryset = queryset.filter(metadata__artist__icontains=artist)
+
+        if album:
+            queryset = queryset.filter(metadata__album__icontains=album)
 
         return queryset
 
