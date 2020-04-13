@@ -18,7 +18,7 @@ class MusicMetaDataSerializer(serializers.ModelSerializer):
         model = MusicMetaData
         fields = ("id", "title", "album", "artist",
                   "year", "genre", "track",
-                  "picture", "duration", "file")
+                  "picture", "duration", "file", "like")
 
 
 class FileSerializer(serializers.ModelSerializer):

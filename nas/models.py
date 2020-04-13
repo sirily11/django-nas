@@ -165,6 +165,7 @@ class MusicMetaData(models.Model):
     genre = models.CharField(null=True, blank=True, max_length=128)
     picture = models.FileField(upload_to='music-cover/%Y/%m/%d', null=True, blank=True)
     duration = models.IntegerField(blank=True, null=True)
+    like = models.BooleanField(default=False)
 
     def __str__(self):
         return self.title

@@ -93,6 +93,24 @@ class FolderViewSet(viewsets.ModelViewSet):
             return Response(status=500)
 
 
+class AlbumView(generics.ListAPIView):
+    serializer_class = MusicMetaDataSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        albums = MusicMetaData.objects.order_by('album').values('album').distinct()
+        return albums
+
+
+class ArtistView(generics.ListAPIView):
+    serializer_class = MusicMetaDataSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        artist = MusicMetaData.objects.order_by('artist').values('artist').distinct()
+        return artist
+
+
 class MusicView(generics.ListAPIView, generics.UpdateAPIView):
     serializer_class = FileSerializer
     filter_backends = [filters.SearchFilter]

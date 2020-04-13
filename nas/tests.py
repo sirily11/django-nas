@@ -4,7 +4,7 @@ from rest_framework.test import force_authenticate, APIRequestFactory
 from nas.utils import get_list_files, create_folders, has_parent, \
     get_mp4_metadata, get_mp3_metadata, get_and_create_music_metadata
 from .utils2 import is_video, is_audio
-from .views import FolderViewSet, FileViewSet, MusicView
+from .views import FolderViewSet, FileViewSet, MusicView, AlbumView, ArtistView
 from .models import Folder, File as FileObj, MusicMetaData
 from django.contrib.auth.models import User
 from django.core.files import File
@@ -339,3 +339,33 @@ class MusicMetaDataTest(TestCase):
         meta = MusicMetaData.objects.all()
         self.assertEqual(response.status_code, 201)
         self.assertEqual(len(meta), 2)
+
+    def test_album_view(self):
+        MusicMetaData.objects.create(title='a', album='a')
+        MusicMetaData.objects.create(title='a', album='b')
+        MusicMetaData.objects.create(title='a', album='c')
+        MusicMetaData.objects.create(title='a', album='d')
+
+        factory = APIRequestFactory()
+        view = AlbumView.as_view()
+        request = factory.get('/album/')
+        response = view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 4)
+        self.assertEqual(response.data[0]['album'], 'a')
+        self.assertEqual(response.data[1]['album'], 'b')
+        self.assertEqual(response.data[2]['album'], 'c')
+        self.assertEqual(response.data[3]['album'], 'd')
+
+    def test_artist_view(self):
+        MusicMetaData.objects.create(title='a', album='a', artist='a')
+        MusicMetaData.objects.create(title='a', album='b', artist='b')
+        MusicMetaData.objects.create(title='a', album='c', artist='a')
+        MusicMetaData.objects.create(title='a', album='d', artist='b')
+
+        factory = APIRequestFactory()
+        view = ArtistView.as_view()
+        request = factory.get('/artist/')
+        response = view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data), 2)
