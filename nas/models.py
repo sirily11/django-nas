@@ -9,7 +9,6 @@ from django_rq import job
 from django.db.models import Sum
 from django.conf import settings
 from datetime import datetime
-
 from .utils2 import is_video, is_audio, get_filename, get_video_filename
 
 CHOICES = (("Image", "image"), ("Text", "txt"), ("File", "file"))
@@ -137,7 +136,8 @@ class File(models.Model):
                 queue.enqueue(transcode_video, self.file.path, self.pk)
 
         if is_audio(self.file.name):
-            pass
+            from .utils import get_and_create_music_metadata
+            get_and_create_music_metadata(self)
 
     def delete(self, *args, **kwargs):
         folder = None

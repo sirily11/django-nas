@@ -311,4 +311,18 @@ class MusicMetaDataTest(TestCase):
             meta = MusicMetaData.objects.filter(file=nas_file).first()
 
             self.assertTrue(meta is not None)
-            self.assertEqual(meta.title, "きみと恋のままで終われない いつも夢のままじゃいられない")
+            self.assertEqual(meta.title, "きみと恋のままで終われない いつも夢のままじゃいられない")
+            self.assertTrue(meta.picture is not None)
+
+    def test_get_and_create2(self):
+        with open('/test-music/test.m4a', 'rb') as f:
+            nas_file = FileObj.objects.create(file=SimpleUploadedFile('test.m4a', f.read()))
+            nas_file.save()
+            print(nas_file.id)
+
+            get_and_create_music_metadata(nas_file)
+            meta = MusicMetaData.objects.filter(file=nas_file).first()
+
+            self.assertTrue(meta is not None)
+            self.assertEqual(meta.title, "Carry On")
+            self.assertTrue(meta.picture is not None)
