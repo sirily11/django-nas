@@ -96,7 +96,7 @@ class FolderViewSet(viewsets.ModelViewSet):
 class MusicView(generics.ListAPIView, generics.UpdateAPIView):
     serializer_class = FileSerializer
     filter_backends = [filters.SearchFilter]
-    search_fields = ['file']
+    search_fields = ['file', 'metadata__title', 'metadata__album', 'metadata__artist']
     pagination_class = NumPagePagination
     page_size = 10
 

@@ -166,6 +166,9 @@ class MusicMetaData(models.Model):
     picture = models.FileField(upload_to='music-cover/%Y/%m/%d', null=True, blank=True)
     duration = models.IntegerField(blank=True, null=True)
 
+    def __str__(self):
+        return self.title
+
 
 class Document(models.Model):
     content = models.TextField(blank=True, null=True)
@@ -176,6 +179,9 @@ class Document(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     size = models.FloatField(blank=True, null=True)
     modified_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return self.name
 
 
 @job
