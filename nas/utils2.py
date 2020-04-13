@@ -2,7 +2,7 @@ import os
 from os.path import dirname, join, splitext, exists, basename
 from django.conf import settings
 
-AUDIO_EXT = ['.m4v', '.m4a', '.wav', '.mp3']
+AUDIO_EXT = ['.m4a', '.wav', '.mp3']
 VIDEO_EXT = ['.m4v', '.mov', '.m4a', '.wmv', '.mp4', '.avi', '.m3u8']
 
 """

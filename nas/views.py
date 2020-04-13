@@ -107,7 +107,7 @@ class MusicView(generics.ListAPIView, generics.UpdateAPIView):
         return Response(data={"update": "ok"}, status=201)
 
     def get_queryset(self):
-        audio_ext = [".m4v", ".m4a", ".mp3"]
+        audio_ext = [".m4a", ".mp3"]
         queryset = None
         artist = self.request.query_params.get('artist')
         album = self.request.query_params.get('album')
