@@ -369,3 +369,24 @@ class MusicMetaDataTest(TestCase):
         response = view(request)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data), 2)
+
+    def test_like(self):
+        with open('/test-music/test.mp3', 'rb') as f:
+            a = FileObj.objects.create(file=SimpleUploadedFile('test.mp3', f.read()))
+            data: MusicMetaData = MusicMetaData.objects.filter(file=a).first()
+            data.delete()
+
+        with open('/test-music/test.m4a', 'rb') as f:
+            b = FileObj.objects.create(file=SimpleUploadedFile('test.m4a', f.read()))
+            data: MusicMetaData = MusicMetaData.objects.filter(file=b).first()
+            data.delete()
+
+        MusicMetaData.objects.create(title='a', album='a', artist='a', like=True, file=a)
+        MusicMetaData.objects.create(title='b', album='a', artist='a', like=False, file=b)
+
+        factory = APIRequestFactory()
+        view = MusicView.as_view()
+        request = factory.get('/music/?like=true')
+        response = view(request)
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(len(response.data['results']), 1)

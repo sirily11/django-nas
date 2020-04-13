@@ -141,6 +141,7 @@ class MusicView(generics.ListAPIView, generics.UpdateAPIView):
         queryset = None
         artist = self.request.query_params.get('artist')
         album = self.request.query_params.get('album')
+        like = self.request.query_params.get('like')
         for ext in audio_ext:
             files = File.objects.filter(file__contains=ext).order_by("file").all()
             if not queryset:
@@ -153,6 +154,9 @@ class MusicView(generics.ListAPIView, generics.UpdateAPIView):
 
         if album:
             queryset = queryset.filter(metadata__album__icontains=album)
+
+        if like:
+            queryset = queryset.filter(metadata__like=True)
 
         return queryset
 
