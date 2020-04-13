@@ -7,6 +7,7 @@ router.register(r'file', views.FileViewSet, base_name="files")
 router.register(r'folder', views.FolderViewSet, base_name="folders")
 router.register(r'user', views.UserViewSet, base_name="users")
 router.register(r'document', views.DocumentViewSet, base_name='documents')
+router.register(r'music-metadata', views.MusicMetaDataViewSet, base_name="music-metadata")
 
 urlpatterns = [
     path('api/', include(router.urls), name='api'),

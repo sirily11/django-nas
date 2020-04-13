@@ -1,7 +1,15 @@
 from typing import List, Tuple, Optional
-
-from nas.models import Folder, File
+from mutagen.mp4 import MP4
+from mutagen.mp3 import EasyMP3 as MP3
+from mutagen.id3 import ID3
+from nas.models import Folder, File, MusicMetaData
+import os
 from pathlib import PurePath
+from django.core.files.uploadedfile import SimpleUploadedFile, InMemoryUploadedFile
+
+"""
+This file contains utils which use models
+"""
 
 
 def get_list_files(folder: Folder) -> List[File]:
@@ -57,3 +65,107 @@ def create_folders(paths: List[str], parent: Optional[Folder]) -> Tuple[str, Fol
         sub_parent.save()
 
     return create_folders(rest_paths, sub_parent)
+
+
+def get_mp4_metadata(path: str) -> Tuple[str, str, str, str, int, int, SimpleUploadedFile, int]:
+    """
+    Return title, album, artist, year, genre, cover, duration
+    :param path: mp4 file
+    :return:
+    """
+    info = MP4(path)
+    title = info.tags.get("\xa9nam")
+    album = info.tags.get('\xa9alb')
+    artist = info.tags.get('\xa9ART')
+    year = info.tags.get('\xa9day')
+    genre = info.tags.get('\xa9gen')
+    cover = info.tags.get('covr')
+    duration = info.info.length
+
+    if album:
+        album = album.pop()
+
+    if title:
+        title = title.pop()
+
+    if artist:
+        artist = artist.pop()
+
+    if year:
+        year = year.pop()
+
+    if genre:
+        genre = genre.pop()
+
+    if cover:
+        cover = cover[0]
+        cover = SimpleUploadedFile(f'${title}-cover.jpg', bytes(cover), 'image/jpeg')
+
+    return title, album, artist, year, genre, cover, duration
+
+
+def get_mp3_metadata(path: str):
+    info = ID3(path)
+    mp3_info = MP3(path)
+    cover = info.get('APIC:')
+    duration = mp3_info.info.length
+    title = mp3_info['title']
+    album = mp3_info['album']
+    artist = mp3_info['artist']
+    year = mp3_info['date']
+    genre = mp3_info['genre']
+
+    if album:
+        album = album.pop()
+
+    if title:
+        title = title.pop()
+
+    if artist:
+        artist = artist.pop()
+
+    if year:
+        year = year.pop()
+
+    if genre:
+        genre = genre.pop()
+
+    if cover:
+        cover = cover.data
+        cover = SimpleUploadedFile(f'${title}-cover.jpg', bytes(cover), 'image/jpeg')
+
+    return title, album, artist, year, genre, cover, duration
+
+
+def get_and_create_music_metadata(file: File):
+    """
+    Create meta data for given file
+    :param file:
+    :return:
+    """
+    filename, ext = os.path.splitext(file.file.path)
+    title: Optional[str] = None
+    album: Optional[str] = None
+    artist: Optional[str] = None
+    year: Optional[int] = None
+    genre: Optional[str] = None
+    cover: Optional[SimpleUploadedFile] = None
+    duration: Optional[int] = None
+
+    if ext == ".m4a":
+        title, album, artist, year, genre, cover, duration = get_mp4_metadata(file.file.path)
+    elif ext == ".mp3":
+        title, album, artist, year, genre, cover, duration = get_mp3_metadata(file.file.path)
+
+    if title:
+        metadata = MusicMetaData.objects.create(
+            title=title,
+            album=album,
+            artist=artist,
+            year=year,
+            picture=cover,
+            genre=genre,
+            duration=duration,
+            file=file
+        )
+        metadata.save()

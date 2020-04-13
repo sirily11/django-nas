@@ -1,6 +1,4 @@
 from typing import Optional
-
-from django.core.exceptions import ValidationError
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.shortcuts import render, HttpResponse
 from django.http import JsonResponse
@@ -8,8 +6,8 @@ from django.urls import reverse
 from nas.utils import get_list_files, has_parent, create_folders
 from .serializers import FolderSerializer, \
     FileSerializer, UserSerializer, FolderBasicSerializer, DocumentSerializer, \
-    DocumentAbstractSerializer, NumPagePagination
-from .models import Folder, File, Document
+    DocumentAbstractSerializer, NumPagePagination, MusicMetaDataSerializer
+from .models import Folder, File, Document, MusicMetaData
 from rest_framework import viewsets
 from django.contrib.auth.models import User
 from rest_framework.response import Response
@@ -33,6 +31,11 @@ from django.http import StreamingHttpResponse
 class UserViewSet(viewsets.ModelViewSet):
     queryset = User.objects.all().order_by("-date_joined")
     serializer_class = UserSerializer
+
+
+class MusicMetaDataViewSet(viewsets.ModelViewSet):
+    queryset = MusicMetaData.objects.all()
+    serializer_class = MusicMetaDataSerializer
 
 
 @method_decorator(csrf_exempt, name='dispatch')

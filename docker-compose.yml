@@ -15,6 +15,7 @@ services:
     image: server
     volumes:
       - ./:/usr/local/django_nas
+      - ./test-music:/test-music
     command: "python manage.py test"
     depends_on:
       - queue
@@ -24,14 +25,36 @@ services:
     image: server
     volumes:
       - ./:/usr/local/django_nas
+      - ./test-music:/test-music
     command: >
-      sh -c"python mange.py makemigrations &&
+      sh -c"python manage.py makemigrations &&
             python manage.py migrate &&
             python manage.py runserver 0.0.0.0:80"
     ports:
       - 80:80
     depends_on:
       - queue
+
+  django-makemigrations:
+    build: ./docker
+    image: server
+    volumes:
+      - ./:/usr/local/django_nas
+    command: "python manage.py makemigrations"
+
+    depends_on:
+      - queue
+
+  django-migrate:
+    build: ./docker
+    image: server
+    volumes:
+      - ./:/usr/local/django_nas
+    command: "python manage.py migrate"
+
+    depends_on:
+      - queue
+
   redis:
     image: redis:latest
     deploy:

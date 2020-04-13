@@ -10,8 +10,9 @@ from django.db.models import Sum
 from django.conf import settings
 from datetime import datetime
 
+from .utils2 import is_video, is_audio, get_filename, get_video_filename
+
 CHOICES = (("Image", "image"), ("Text", "txt"), ("File", "file"))
-VIDEO_EXT = ['.m4v', '.mov', '.m4a', '.wmv', '.mp4']
 
 
 # Generate file path based on its parent
@@ -107,13 +108,14 @@ class File(models.Model):
 
     def save(self, *args, **kwargs) -> None:
         folder = None
+        # If no file upload
         if not self.file:
             super(File, self).save(*args, **kwargs)
             return
 
         size = self.file.size
         self.size = size
-        filename, file_extension = os.path.splitext(self.file.path)
+
         if self.parent:
             folder = Folder.objects.get(id=self.parent.id)
 
@@ -127,12 +129,15 @@ class File(models.Model):
                 folder.size = size
             folder.save()
 
-        if file_extension.lower() in VIDEO_EXT and self.cover.name is None:
+        if is_video(self.file.path) and self.cover.name is None:
             # If file is video
             queue = django_rq.get_queue()
             queue.enqueue(generate_video_cover, self.file.path, self.pk)
             if settings.TRANSCODE_VIDEO:
                 queue.enqueue(transcode_video, self.file.path, self.pk)
+
+        if is_audio(self.file.name):
+            pass
 
     def delete(self, *args, **kwargs):
         folder = None
@@ -150,6 +155,18 @@ class File(models.Model):
             folder.save()
 
 
+class MusicMetaData(models.Model):
+    file = models.OneToOneField(File, on_delete=models.CASCADE, blank=True, null=True, related_name="metadata")
+    title = models.CharField(blank=True, null=True, max_length=1024)
+    album = models.CharField(blank=True, null=True, max_length=1024)
+    artist = models.TextField(blank=True, null=True, max_length=1024)
+    year = models.CharField(default='2020', max_length=128)
+    track = models.IntegerField(default=0)
+    genre = models.CharField(null=True, blank=True, max_length=128)
+    picture = models.FileField(upload_to='music-cover/%Y/%m/%d', null=True, blank=True)
+    duration = models.IntegerField(blank=True, null=True)
+
+
 class Document(models.Model):
     content = models.TextField(blank=True, null=True)
     parent = models.ForeignKey(Folder, on_delete=models.CASCADE, related_name="documents", null=True, blank=True)
@@ -159,18 +176,6 @@ class Document(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     size = models.FloatField(blank=True, null=True)
     modified_at = models.DateTimeField(auto_now_add=True)
-
-
-def get_filename(path, file_id) -> (str, str):
-    name = f"{file_id}-{splitext(basename(path))[0]}.jpg"
-    output_path = join(settings.MEDIA_ROOT, "covers", name)
-    return name, output_path
-
-
-def get_video_filename(path, file_id) -> (str, str):
-    name = f"{file_id}-{splitext(basename(path))[0]}.mp4"
-    output_path = join(settings.MEDIA_ROOT, "transcode-video", name)
-    return name, output_path
 
 
 @job

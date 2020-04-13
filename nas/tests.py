@@ -2,9 +2,11 @@ from django.test import TestCase
 from rest_framework.reverse import reverse
 from rest_framework.test import force_authenticate, APIRequestFactory
 
-from nas.utils import get_list_files, create_folders, has_parent
+from nas.utils import get_list_files, create_folders, has_parent, \
+    get_mp4_metadata, get_mp3_metadata, get_and_create_music_metadata
+from .utils2 import is_video, is_audio
 from .views import FolderViewSet, FileViewSet
-from .models import Folder, File as FileObj
+from .models import Folder, File as FileObj, MusicMetaData
 from django.contrib.auth.models import User
 from django.core.files import File
 from django.core.files.uploadedfile import SimpleUploadedFile
@@ -274,3 +276,39 @@ class FolderUploadTest(TestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Folder.objects.filter(name='a').count(), 2)
         self.assertEqual(Folder.objects.filter(parent=a).count(), 1)
+
+
+class UtilTest(TestCase):
+    def test_is_video(self):
+        p = "a.avi"
+        self.assertTrue(is_video(p))
+
+    def test_is_audio(self):
+        p = 'a.m4a'
+        self.assertTrue(is_audio(p))
+
+
+class MusicMetaDataTest(TestCase):
+    def test_m4a_audio(self):
+        title, album, artist, year, genre, cover, duration = get_mp4_metadata("/test-music/test.m4a")
+        self.assertEqual(title, "Carry On")
+        self.assertEqual(album, 'Carry On (From the Original Motion Picture "Detective Pikachu") - Single')
+        self.assertTrue("2019" in year)
+        self.assertTrue(cover.size > 0)
+
+    def test_mp3_audio(self):
+        title, album, artist, year, genre, cover, duration = get_mp3_metadata("/test-music/test.mp3")
+        self.assertEqual(year, "2019")
+        self.assertTrue(cover.size > 0)
+
+    def test_get_and_create(self):
+        with open('/test-music/test.mp3', 'rb') as f:
+            nas_file = FileObj.objects.create(file=SimpleUploadedFile('test.mp3', f.read()))
+            nas_file.save()
+            print(nas_file.id)
+
+            get_and_create_music_metadata(nas_file)
+            meta = MusicMetaData.objects.filter(file=nas_file).first()
+
+            self.assertTrue(meta is not None)
+            self.assertEqual(meta.title, "きみと恋のままで終われない いつも夢のままじゃいられない")
