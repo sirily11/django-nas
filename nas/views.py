@@ -98,7 +98,10 @@ class AlbumView(generics.ListAPIView):
     pagination_class = None
 
     def get_queryset(self):
+        artist = self.request.query_params.get('artist')
         query = MusicMetaData.objects.order_by('album').values('album').distinct()
+        if artist:
+            query = MusicMetaData.objects.filter(artist__icontains=artist).order_by('album').values('album').distinct()
         albums = []
         for q in query:
             album = MusicMetaData.objects.filter(album=q['album']).first()
