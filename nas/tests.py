@@ -321,11 +321,16 @@ class MusicMetaDataTest(TestCase):
         Update existing music file
         :return:
         """
+
         with open('/test-music/test.mp3', 'rb') as f:
             nas_file = FileObj.objects.create(file=SimpleUploadedFile('test.mp3', f.read()))
+            data: MusicMetaData = MusicMetaData.objects.filter(file=nas_file).first()
+            data.delete()
 
         with open('/test-music/test.m4a', 'rb') as f:
             nas_file = FileObj.objects.create(file=SimpleUploadedFile('test.m4a', f.read()))
+            data: MusicMetaData = MusicMetaData.objects.filter(file=nas_file).first()
+            data.delete()
 
         factory = APIRequestFactory()
         view = MusicView.as_view()
