@@ -101,7 +101,7 @@ class AlbumView(generics.ListAPIView):
         artist = self.request.query_params.get('artist')
         query = MusicMetaData.objects.order_by('album').values('album').distinct()
         if artist:
-            query = MusicMetaData.objects.filter(artist__icontains=artist).order_by('album').values('album').distinct()
+            query = MusicMetaData.objects.filter(artist=artist).order_by('album').values('album').distinct()
         albums = []
         for q in query:
             album = MusicMetaData.objects.filter(album=q['album']).first()
