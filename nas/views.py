@@ -99,9 +99,14 @@ class AlbumView(generics.ListAPIView):
 
     def get_queryset(self):
         artist = self.request.query_params.get('artist')
+        album_artist = self.request.query_params.get('album_artist')
+
         query = MusicMetaData.objects.order_by('album').values('album').distinct()
         if artist:
             query = MusicMetaData.objects.filter(artist=artist).order_by('album').values('album').distinct()
+
+        if album_artist:
+            query = MusicMetaData.objects.filter(album_artist=album_artist).order_by('album').values('album').distinct()
         albums = []
         for q in query:
             album = MusicMetaData.objects.filter(album=q['album']).first()

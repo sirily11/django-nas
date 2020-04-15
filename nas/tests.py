@@ -289,14 +289,14 @@ class UtilTest(TestCase):
 
 class MusicMetaDataTest(TestCase):
     def test_m4a_audio(self):
-        title, album, artist, year, genre, cover, duration = get_mp4_metadata("/test-music/test.m4a")
+        title, album, artist, year, genre, cover, duration, album_artist, track = get_mp4_metadata("/test-music/test.m4a")
         self.assertEqual(title, "Carry On")
         self.assertEqual(album, 'Carry On (From the Original Motion Picture "Detective Pikachu") - Single')
         self.assertTrue("2019" in year)
         self.assertTrue(cover.size > 0)
 
     def test_mp3_audio(self):
-        title, album, artist, year, genre, cover, duration = get_mp3_metadata("/test-music/test.mp3")
+        title, album, artist, year, genre, cover, duration, album_artist, track = get_mp3_metadata("/test-music/test.mp3")
         self.assertEqual(year, "2019")
         self.assertTrue(cover.size > 0)
 
@@ -307,6 +307,7 @@ class MusicMetaDataTest(TestCase):
             self.assertTrue(meta is not None)
             self.assertEqual(meta.title, "きみと恋のままで終われない いつも夢のままじゃいられない")
             self.assertTrue(meta.picture is not None)
+            self.assertEqual(meta.track, 1)
 
     def test_get_and_create2(self):
         with open('/test-music/test.m4a', 'rb') as f:
@@ -314,6 +315,16 @@ class MusicMetaDataTest(TestCase):
             meta = MusicMetaData.objects.filter(file=nas_file).first()
             self.assertTrue(meta is not None)
             self.assertEqual(meta.title, "Carry On")
+            self.assertEqual(meta.track, 1)
+            self.assertTrue(meta.picture is not None)
+
+    def test_get_and_create3(self):
+        with open('/test-music/test2.mp3', 'rb') as f:
+            nas_file = FileObj.objects.create(file=SimpleUploadedFile('test2.mp3', f.read()))
+            meta = MusicMetaData.objects.filter(file=nas_file).first()
+            self.assertTrue(meta is not None)
+            self.assertEqual(meta.title, "Unlasting")
+            self.assertEqual(meta.track, 1)
             self.assertTrue(meta.picture is not None)
 
     def test_update_metadata(self):

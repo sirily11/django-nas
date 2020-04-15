@@ -67,9 +67,9 @@ def create_folders(paths: List[str], parent: Optional[Folder]) -> Tuple[str, Fol
     return create_folders(rest_paths, sub_parent)
 
 
-def get_mp4_metadata(path: str) -> Tuple[str, str, str, str, int, int, SimpleUploadedFile, int]:
+def get_mp4_metadata(path: str) -> Tuple[str, str, str, str, int, int, SimpleUploadedFile, int, str, str]:
     """
-    Return title, album, artist, year, genre, cover, duration
+    Return title, album, artist, year, genre, cover, duration, album_artist, track
     :param path: mp4 file
     :return:
     """
@@ -81,6 +81,8 @@ def get_mp4_metadata(path: str) -> Tuple[str, str, str, str, int, int, SimpleUpl
     genre = info.tags.get('\xa9gen')
     cover = info.tags.get('covr')
     duration = info.info.length
+    album_artist = info.tags.get('aART')
+    track = info.tags.get('trkn')
 
     if album:
         album = album.pop()
@@ -97,11 +99,18 @@ def get_mp4_metadata(path: str) -> Tuple[str, str, str, str, int, int, SimpleUpl
     if genre:
         genre = genre.pop()
 
+    if album_artist:
+        album_artist = album_artist.pop()
+
+    if track:
+        trk, total = track[0]
+        track = trk
+
     if cover:
         cover = cover[0]
         cover = SimpleUploadedFile(f'${title}-cover.jpg', bytes(cover), 'image/jpeg')
 
-    return title, album, artist, year, genre, cover, duration
+    return title, album, artist, year, genre, cover, duration, album_artist, track
 
 
 def get_mp3_metadata(path: str):
@@ -114,6 +123,8 @@ def get_mp3_metadata(path: str):
     artist = mp3_info['artist']
     year = mp3_info['date']
     genre = mp3_info['genre']
+    track = mp3_info['tracknumber']
+    album_artist = mp3_info['albumartist']
 
     if album:
         album = album.pop()
@@ -134,7 +145,18 @@ def get_mp3_metadata(path: str):
         cover = cover.data
         cover = SimpleUploadedFile(f'${title}-cover.jpg', bytes(cover), 'image/jpeg')
 
-    return title, album, artist, year, genre, cover, duration
+    if album_artist:
+        album_artist = album_artist.pop()
+
+    if track:
+        try:
+            track: str = track.pop()
+            track = track.split('/')
+            track = track[0]
+        except Exception as e:
+            track = 0
+
+    return title, album, artist, year, genre, cover, duration, album_artist, track
 
 
 def get_and_create_music_metadata(file: File):
@@ -151,11 +173,15 @@ def get_and_create_music_metadata(file: File):
     genre: Optional[str] = None
     cover: Optional[SimpleUploadedFile] = None
     duration: Optional[int] = None
+    album_artist = None
+    track = None
 
     if ext == ".m4a":
-        title, album, artist, year, genre, cover, duration = get_mp4_metadata(file.file.path)
+        title, album, artist, year, \
+        genre, cover, duration, album_artist, track = get_mp4_metadata(file.file.path)
     elif ext == ".mp3":
-        title, album, artist, year, genre, cover, duration = get_mp3_metadata(file.file.path)
+        title, album, artist, year, genre, \
+        cover, duration, album_artist, track = get_mp3_metadata(file.file.path)
 
     if title:
         if MusicMetaData.objects.filter(file=file).exists():
@@ -166,6 +192,12 @@ def get_and_create_music_metadata(file: File):
             metadata.picture = cover
             metadata.genre = genre
             metadata.duration = duration
+            metadata.album_artist = album_artist
+            try:
+                metadata.track = int(track)
+            except:
+                pass
+            metadata.save()
         else:
             metadata = MusicMetaData.objects.create(
                 title=title,
@@ -175,5 +207,7 @@ def get_and_create_music_metadata(file: File):
                 picture=cover,
                 genre=genre,
                 duration=duration,
-                file=file
+                file=file,
+                track=track,
+                album_artist=album_artist
             )

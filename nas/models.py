@@ -156,10 +156,15 @@ class File(models.Model):
 
 
 class MusicMetaData(models.Model):
-    file = models.OneToOneField(File, on_delete=models.CASCADE, blank=True, null=True, related_name="metadata")
+    file = models.OneToOneField(File, on_delete=models.CASCADE,
+                                blank=True,
+                                null=True,
+                                related_name="metadata",
+                                )
     title = models.CharField(blank=True, null=True, max_length=1024)
     album = models.CharField(blank=True, null=True, max_length=1024)
     artist = models.TextField(blank=True, null=True, max_length=1024)
+    album_artist = models.TextField(blank=True, null=True, max_length=1024)
     year = models.CharField(default='2020', max_length=128)
     track = models.IntegerField(default=0)
     genre = models.CharField(null=True, blank=True, max_length=128)
