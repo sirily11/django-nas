@@ -118,12 +118,12 @@ def get_mp3_metadata(path: str):
     mp3_info = MP3(path)
     cover = info.get('APIC:')
     duration = mp3_info.info.length
-    title = mp3_info['title']
-    album = mp3_info['album']
-    artist = mp3_info['artist']
-    year = mp3_info['date']
-    genre = mp3_info['genre']
-    track = mp3_info['tracknumber']
+    title = mp3_info.get('title')
+    album = mp3_info.get('album')
+    artist = mp3_info.get('artist')
+    year = mp3_info.get('date')
+    genre = mp3_info.get('genre')
+    track = mp3_info.get('tracknumber')
     album_artist = mp3_info.get('albumartist')
 
     if album:
