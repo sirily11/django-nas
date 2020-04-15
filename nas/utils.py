@@ -124,7 +124,7 @@ def get_mp3_metadata(path: str):
     year = mp3_info['date']
     genre = mp3_info['genre']
     track = mp3_info['tracknumber']
-    album_artist = mp3_info['albumartist']
+    album_artist = mp3_info.get('albumartist')
 
     if album:
         album = album.pop()
