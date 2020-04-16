@@ -224,11 +224,13 @@ class FileViewSet(viewsets.ModelViewSet):
         return res
 
 
-@method_decorator(csrf_exempt, name='dispatch')
 class DocumentViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
     search_fields = ['content']
+
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
 
     # def get_queryset(self):
     #     queryset = Document.objects.all()

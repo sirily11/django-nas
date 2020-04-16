@@ -47,13 +47,13 @@ class FileSerializer(serializers.ModelSerializer):
 
 
 class DocumentSerializer(serializers.ModelSerializer):
-    collection = BookCollectionSerializer()
+    book_collection = BookCollectionSerializer(many=False, source="collection", read_only=True)
 
     class Meta:
         model = Document
         fields = ("id", "created_at", "name",
                   "description", "size",
-                  "modified_at", "parent", "content", "collection")
+                  "modified_at", "parent", "content", "collection", "book_collection")
 
 
 class DocumentAbstractSerializer(serializers.ModelSerializer):

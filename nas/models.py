@@ -194,7 +194,7 @@ class Document(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     size = models.FloatField(blank=True, null=True)
     modified_at = models.DateTimeField(auto_now_add=True)
-    collection = models.ForeignKey(to=BookCollection, null=True, on_delete=models.SET_NULL)
+    collection = models.ForeignKey(to=BookCollection, null=True, blank=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
