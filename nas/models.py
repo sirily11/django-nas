@@ -1,17 +1,17 @@
-from django.core.exceptions import ValidationError
 from django.db import models
 from django.contrib.auth.models import User
 import django_rq
 import os
 import ffmpeg
-from os.path import dirname, join, splitext, exists, basename
+from os.path import join, exists
 from django_rq import job
-from django.db.models import Sum
 from django.conf import settings
 from datetime import datetime
-from .utils2 import is_video, is_audio, get_filename, get_video_filename
+from nas.utils.utils2 import is_video, is_audio, get_filename, get_video_filename
 
 CHOICES = (("Image", "image"), ("Text", "txt"), ("File", "file"))
+EVENT_TYPES = (("CREATED", "created"), ("DELETED", "deleted"),
+               ("UPDATED", "updated"), ("LOG", "log"))
 
 
 # Generate file path based on its parent
@@ -136,7 +136,7 @@ class File(models.Model):
                 queue.enqueue(transcode_video, self.file.path, self.pk)
 
         if is_audio(self.file.name):
-            from .utils import get_and_create_music_metadata
+            from nas.utils.utils import get_and_create_music_metadata
             get_and_create_music_metadata(self)
 
     def delete(self, *args, **kwargs):
@@ -176,18 +176,36 @@ class MusicMetaData(models.Model):
         return self.title
 
 
+class BookCollection(models.Model):
+    name = models.CharField(max_length=128, null=False, blank=False)
+    description = models.TextField(blank=True, null=True)
+    created_time = models.DateTimeField(auto_now_add=True)
+
+
 class Document(models.Model):
     content = models.TextField(blank=True, null=True)
-    parent = models.ForeignKey(Folder, on_delete=models.CASCADE, related_name="documents", null=True, blank=True)
+    parent = models.ForeignKey(Folder, on_delete=models.CASCADE,
+                               related_name="documents",
+                               null=True,
+                               blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     name = models.CharField(max_length=128, default="")
     description = models.TextField(null=True, blank=True)
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     size = models.FloatField(blank=True, null=True)
     modified_at = models.DateTimeField(auto_now_add=True)
+    collection = models.ForeignKey(to=BookCollection, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return self.name
+
+
+class Logs(models.Model):
+    time = models.DateTimeField(auto_now_add=True)
+    title = models.CharField(max_length=1024, null=True, blank=True)
+    content = models.TextField(null=True, blank=True)
+    sender = models.CharField(max_length=128, default="system")
+    log_type = models.CharField(choices=EVENT_TYPES, null=False, blank=False, max_length=128)
 
 
 @job

@@ -1,13 +1,14 @@
 from typing import Optional
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.shortcuts import render, HttpResponse
+from django.shortcuts import HttpResponse
 from django.http import JsonResponse
 from django.urls import reverse
-from nas.utils import get_list_files, has_parent, create_folders
+from nas.utils.utils import get_list_files, has_parent, create_folders
 from .serializers import FolderSerializer, \
     FileSerializer, UserSerializer, FolderBasicSerializer, DocumentSerializer, \
-    DocumentAbstractSerializer, NumPagePagination, MusicMetaDataSerializer
-from .models import Folder, File, Document, MusicMetaData
+    DocumentAbstractSerializer, NumPagePagination, MusicMetaDataSerializer, \
+    LogsSerializer, BookCollectionSerializer
+from .models import Folder, File, Document, MusicMetaData, Logs, BookCollection
 from rest_framework import viewsets
 from django.contrib.auth.models import User
 from rest_framework.response import Response
@@ -23,10 +24,18 @@ from django_rq import job
 import django_rq
 import zipstream
 from django.http import StreamingHttpResponse
-from .utils import get_and_create_music_metadata
+from nas.utils.utils import get_and_create_music_metadata
+
+
+class BookCollectionViewSet(viewsets.ModelViewSet):
+    queryset = BookCollection.objects.all()
+    serializer_class = BookCollectionSerializer
 
 
 # from .documents import DocDocument
+class LogsViewSet(viewsets.ModelViewSet):
+    queryset = Logs.objects.all()
+    serializer_class = LogsSerializer
 
 
 class UserViewSet(viewsets.ModelViewSet):
