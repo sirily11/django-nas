@@ -181,6 +181,9 @@ class BookCollection(models.Model):
     description = models.TextField(blank=True, null=True)
     created_time = models.DateTimeField(auto_now_add=True)
 
+    def __str__(self):
+        return self.name
+
 
 class Document(models.Model):
     content = models.TextField(blank=True, null=True)
@@ -194,7 +197,9 @@ class Document(models.Model):
     owner = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
     size = models.FloatField(blank=True, null=True)
     modified_at = models.DateTimeField(auto_now_add=True)
-    collection = models.ForeignKey(to=BookCollection, null=True, blank=True, on_delete=models.SET_NULL)
+    show_in_folder = models.BooleanField(default=True)
+    collection = models.ForeignKey(to=BookCollection, null=True, blank=True, on_delete=models.SET_NULL,
+                                   related_name="books")
 
     def __str__(self):
         return self.name
@@ -206,6 +211,9 @@ class Logs(models.Model):
     content = models.TextField(null=True, blank=True)
     sender = models.CharField(max_length=128, default="system")
     log_type = models.CharField(choices=EVENT_TYPES, null=False, blank=False, max_length=128)
+
+    def __str__(self):
+        return self.title
 
 
 @job

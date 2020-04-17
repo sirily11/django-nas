@@ -53,7 +53,7 @@ class DocumentSerializer(serializers.ModelSerializer):
         model = Document
         fields = ("id", "created_at", "name",
                   "description", "size",
-                  "modified_at", "parent", "content", "collection", "book_collection")
+                  "modified_at", "parent", "content", "collection", "book_collection", "show_in_folder")
 
 
 class DocumentAbstractSerializer(serializers.ModelSerializer):
@@ -61,7 +61,15 @@ class DocumentAbstractSerializer(serializers.ModelSerializer):
         model = Document
         fields = ("id", "created_at", "name",
                   "description", "size",
-                  "modified_at", "parent")
+                  "modified_at", "parent", "show_in_folder", "collection")
+
+
+class BookCollectionDetailSerializer(serializers.ModelSerializer):
+    documents = DocumentAbstractSerializer(source="books", many=True)
+
+    class Meta:
+        model = BookCollection
+        fields = ("id", "name", "description", "created_time", "documents")
 
 
 class FolderBasicSerializer(serializers.ModelSerializer):

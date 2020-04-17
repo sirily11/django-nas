@@ -9,7 +9,7 @@ from nas.views import DocumentViewSet, BookCollectionViewSet
 from django.test import override_settings
 
 
-class MusicMetaDataTest(TestCase):
+class BookCollectionTest(TestCase):
 
     def tearDown(self):
         try:

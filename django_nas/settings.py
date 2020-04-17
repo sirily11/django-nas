@@ -44,11 +44,10 @@ INSTALLED_APPS = [
     'django_elasticsearch_dsl',
 ]
 
-
-
 REST_FRAMEWORK = {
     'DEFAULT_FILTER_BACKENDS': ['django_filters.rest_framework.DjangoFilterBackend'],
     'DEFAULT_PAGINATION_CLASS': 'rest_framework.pagination.LimitOffsetPagination',
+    'DEFAULT_METADATA_CLASS': 'drf_auto_endpoint.metadata.MinimalAutoMetadata',
     'PAGE_SIZE': 100
 }
 
@@ -62,6 +61,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
+DRF_AUTO_METADATA_ADAPTER = 'drf_auto_endpoint.adapters.EmberAdapter'
 ROOT_URLCONF = 'django_nas.urls'
 
 TEMPLATES = [

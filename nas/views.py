@@ -7,7 +7,7 @@ from nas.utils.utils import get_list_files, has_parent, create_folders
 from .serializers import FolderSerializer, \
     FileSerializer, UserSerializer, FolderBasicSerializer, DocumentSerializer, \
     DocumentAbstractSerializer, NumPagePagination, MusicMetaDataSerializer, \
-    LogsSerializer, BookCollectionSerializer
+    LogsSerializer, BookCollectionSerializer, BookCollectionDetailSerializer
 from .models import Folder, File, Document, MusicMetaData, Logs, BookCollection
 from rest_framework import viewsets
 from django.contrib.auth.models import User
@@ -25,11 +25,17 @@ import django_rq
 import zipstream
 from django.http import StreamingHttpResponse
 from nas.utils.utils import get_and_create_music_metadata
+from datetime import datetime
 
 
 class BookCollectionViewSet(viewsets.ModelViewSet):
     queryset = BookCollection.objects.all()
     serializer_class = BookCollectionSerializer
+    pagination_class = None
+
+    def retrieve(self, request, *args, **kwargs):
+        self.serializer_class = BookCollectionDetailSerializer
+        return super().retrieve(request, *args, **kwargs)
 
 
 # from .documents import DocDocument
@@ -78,7 +84,7 @@ class FolderViewSet(viewsets.ModelViewSet):
         # Get root
         obj = Folder.objects.filter(parent__isnull=True).all()
         obj2 = File.objects.filter(parent__isnull=True).all()
-        obj3 = Document.objects.filter(parent__isnull=True).all()
+        obj3 = Document.objects.filter(parent__isnull=True, show_in_folder=True).all()
 
         total_size = sum(o.total_size for o in obj)
         total_size += sum(o.size for o in obj2 if o.size)
@@ -145,9 +151,16 @@ class MusicView(generics.ListAPIView, generics.UpdateAPIView):
     page_size = 10
 
     def update(self, request, *args, **kwargs):
+        start_time = datetime.now()
         for file in self.get_queryset():
             get_and_create_music_metadata(file)
 
+        num_music_metadata = MusicMetaData.objects.count()
+        content = f"# Music Library has been updated\n\n"
+        content += f"User has request the rebuild index at {start_time}. And during this process, system has updated {len(self.get_queryset())} music's metadata. After this operation, the total number of music metadata is {num_music_metadata}. This update ended at {datetime.now()}\n\n"
+        content += f"Author: auto generated logs"
+
+        Logs.objects.create(title="Updated Music Library", content=content, log_type="UPDATED", sender="Music View")
         return Response(data={"update": "ok"}, status=201)
 
     def get_queryset(self):
@@ -228,18 +241,6 @@ class DocumentViewSet(viewsets.ModelViewSet):
     queryset = Document.objects.all()
     serializer_class = DocumentSerializer
     search_fields = ['content']
-
-    def create(self, request, *args, **kwargs):
-        return super().create(request, *args, **kwargs)
-
-    # def get_queryset(self):
-    #     queryset = Document.objects.all()
-    #     search = self.request.query_params.get("search")
-    #     if search:
-    #         docs = DocDocument.search().query("match", content=search).to_queryset()
-    #         queryset = docs
-    #
-    #     return queryset
 
 
 @method_decorator(csrf_exempt, name='dispatch')

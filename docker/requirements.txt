@@ -35,3 +35,4 @@ urllib3==1.25.7
 zipstream-new==1.1.7
 django-dynamic-preferences==1.8.1
 mutagen==1.44.0
+drf-schema-adapter==2.0.7
