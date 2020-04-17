@@ -40,7 +40,7 @@ class BookCollectionViewSet(viewsets.ModelViewSet):
 
 # from .documents import DocDocument
 class LogsViewSet(viewsets.ModelViewSet):
-    queryset = Logs.objects.all()
+    queryset = Logs.objects.order_by("-time").all()
     serializer_class = LogsSerializer
 
 
