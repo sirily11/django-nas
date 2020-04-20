@@ -8,11 +8,11 @@ on:
 
 jobs:
   build:
-    runs-on: macos-latest
+    runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v2
-    - name: start Docker deamon
-      run:  docker-machine start default
+    - name: Build Docker
+      run: docker-compose build .
     - name: Start Docker
       run: |
         docker-compose up -d django
