@@ -211,3 +211,20 @@ def get_and_create_music_metadata(file: File):
                 track=track,
                 album_artist=album_artist
             )
+
+
+def convert_pdf(file_path: str) -> str:
+    pass
+
+
+def convert_docx(file_path: str) -> str:
+    pass
+
+
+def extra_text_content(file: File):
+    filename, ext = os.path.splitext(file.file.path)
+    if ext == ".pdf":
+        pass
+
+    elif ext == ".docx":
+        pass

@@ -21,7 +21,7 @@ class MusicMetaDataTest(TestCase):
     @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_m4a_audio(self):
         title, album, artist, year, genre, cover, duration, album_artist, track = \
-            get_mp4_metadata("/test-music/test.m4a")
+            get_mp4_metadata("/test-files/test.m4a")
         self.assertEqual(title, "Carry On")
         self.assertEqual(album, 'Carry On (From the Original Motion Picture "Detective Pikachu") - Single')
         self.assertTrue("2019" in year)
@@ -30,13 +30,13 @@ class MusicMetaDataTest(TestCase):
     @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_mp3_audio(self):
         title, album, artist, year, genre, cover, duration, album_artist, track = get_mp3_metadata(
-            "/test-music/test.mp3")
+            "/test-files/test.mp3")
         self.assertEqual(year, "2019")
         self.assertTrue(cover.size > 0)
 
     @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_get_and_create(self):
-        with open('/test-music/test.mp3', 'rb') as f:
+        with open('/test-files/test.mp3', 'rb') as f:
             nas_file = FileObj.objects.create(file=SimpleUploadedFile('test.mp3', f.read()))
             meta = MusicMetaData.objects.filter(file=nas_file).first()
             self.assertTrue(meta is not None)
@@ -46,7 +46,7 @@ class MusicMetaDataTest(TestCase):
 
     @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_get_and_create2(self):
-        with open('/test-music/test.m4a', 'rb') as f:
+        with open('/test-files/test.m4a', 'rb') as f:
             nas_file = FileObj.objects.create(file=SimpleUploadedFile('test.m4a', f.read()))
             meta = MusicMetaData.objects.filter(file=nas_file).first()
             self.assertTrue(meta is not None)
@@ -56,7 +56,7 @@ class MusicMetaDataTest(TestCase):
 
     @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_get_and_create3(self):
-        with open('/test-music/test2.mp3', 'rb') as f:
+        with open('/test-files/test2.mp3', 'rb') as f:
             nas_file = FileObj.objects.create(file=SimpleUploadedFile('test2.mp3', f.read()))
             meta = MusicMetaData.objects.filter(file=nas_file).first()
             self.assertTrue(meta is not None)
@@ -71,12 +71,12 @@ class MusicMetaDataTest(TestCase):
         :return:
         """
 
-        with open('/test-music/test.mp3', 'rb') as f:
+        with open('/test-files/test.mp3', 'rb') as f:
             nas_file = FileObj.objects.create(file=SimpleUploadedFile('test.mp3', f.read()))
             data: MusicMetaData = MusicMetaData.objects.filter(file=nas_file).first()
             data.delete()
 
-        with open('/test-music/test.m4a', 'rb') as f:
+        with open('/test-files/test.m4a', 'rb') as f:
             nas_file = FileObj.objects.create(file=SimpleUploadedFile('test.m4a', f.read()))
             data: MusicMetaData = MusicMetaData.objects.filter(file=nas_file).first()
             data.delete()
@@ -123,12 +123,12 @@ class MusicMetaDataTest(TestCase):
 
     @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_like(self):
-        with open('/test-music/test.mp3', 'rb') as f:
+        with open('/test-files/test.mp3', 'rb') as f:
             a = FileObj.objects.create(file=SimpleUploadedFile('test.mp3', f.read()))
             data: MusicMetaData = MusicMetaData.objects.filter(file=a).first()
             data.delete()
 
-        with open('/test-music/test.m4a', 'rb') as f:
+        with open('/test-files/test.m4a', 'rb') as f:
             b = FileObj.objects.create(file=SimpleUploadedFile('test.m4a', f.read()))
             data: MusicMetaData = MusicMetaData.objects.filter(file=b).first()
             data.delete()

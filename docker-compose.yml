@@ -25,7 +25,7 @@ services:
     image: server
     volumes:
       - ./:/usr/local/django_nas
-      - ./test-music:/test-music
+      - ./test-files:/test-files
     command: >
       sh -c "python manage.py makemigrations &&
             python manage.py migrate &&
