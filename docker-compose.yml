@@ -15,7 +15,7 @@ services:
     image: server
     volumes:
       - ./:/usr/local/django_nas
-      - ./test-music:/test-music
+      - ./test-files:/test-files
     command: "python manage.py test"
     depends_on:
       - queue
