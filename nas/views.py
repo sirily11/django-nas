@@ -25,7 +25,7 @@ import django_rq
 import zipstream
 from django.http import StreamingHttpResponse
 from nas.utils.utils import get_and_create_music_metadata, extra_text_from_current_files
-from datetime import datetime
+from datetime import datetime, time
 
 
 class BookCollectionViewSet(viewsets.ModelViewSet):
@@ -299,7 +299,12 @@ def download(request, folder):
 
 @csrf_exempt
 def update_file_description(request):
+    start_time = time()
     num = extra_text_from_current_files()
+    end_time = time()
+    content = "## Updated file description\n"
+    content += f"Total time last: {end_time - start_time} seconds and had updated {num} files."
+    Logs.objects.create(title="Updated file description", content=content, sender="System", log_type="UPDATED")
     return JsonResponse(data={"number_updates": num})
 
 

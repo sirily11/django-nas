@@ -238,6 +238,9 @@ def extra_text_from_current_files() -> int:
     files = File.objects.filter(queryset).all()
     num = 0
     for file in files:
-        file.save()
-        num += 1
+        try:
+            file.save()
+            num += 1
+        except Exception as e:
+            pass
     return num
