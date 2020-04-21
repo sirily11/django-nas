@@ -19,5 +19,6 @@ urlpatterns = [
     path('api/music/album/', views.AlbumView.as_view(), name='album'),
     path('api/music/artist/', views.ArtistView.as_view(), name='artist'),
     path('', views.index, name='home'),
-    path('s3/<int:file_index>', views.upload, name='upload')
+    path('s3/<int:file_index>', views.upload, name='upload'),
+    path('api/update_file_description', views.update_file_description, name='update-file-description')
 ]

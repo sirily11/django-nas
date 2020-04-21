@@ -24,7 +24,7 @@ from django_rq import job
 import django_rq
 import zipstream
 from django.http import StreamingHttpResponse
-from nas.utils.utils import get_and_create_music_metadata
+from nas.utils.utils import get_and_create_music_metadata, extra_text_from_current_files
 from datetime import datetime
 
 
@@ -194,7 +194,7 @@ class FileViewSet(viewsets.ModelViewSet):
     queryset = File.objects.all()
     serializer_class = FileSerializer
     pagination_class = None
-    search_fields = ['file']
+    search_fields = ['file', 'description']
 
     def create(self, request, *args, **kwargs):
         file: InMemoryUploadedFile = request.data.get("file")
@@ -295,6 +295,12 @@ def download(request, folder):
     # return as zipfile
     response['Content-Disposition'] = f'attachment; filename={zipfile_name}'
     return response
+
+
+@csrf_exempt
+def update_file_description(request):
+    num = extra_text_from_current_files()
+    return JsonResponse(data={"number_updates": num})
 
 
 @csrf_exempt

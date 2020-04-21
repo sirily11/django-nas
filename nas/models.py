@@ -7,7 +7,7 @@ from os.path import join, exists
 from django_rq import job
 from django.conf import settings
 from datetime import datetime
-from nas.utils.utils2 import is_video, is_audio, get_filename, get_video_filename
+from nas.utils.utils2 import is_video, is_audio, get_filename, get_video_filename, is_document
 
 CHOICES = (("Image", "image"), ("Text", "txt"), ("File", "file"))
 EVENT_TYPES = (("CREATED", "created"), ("DELETED", "deleted"),
@@ -18,7 +18,6 @@ EVENT_TYPES = (("CREATED", "created"), ("DELETED", "deleted"),
 def user_directory_path(instance, filename: str):
     path = filename
     p = instance.parent
-    print(filename)
 
     while p:
         path = join(p.name, path)
@@ -138,6 +137,12 @@ class File(models.Model):
         if is_audio(self.file.name):
             from nas.utils.utils import get_and_create_music_metadata
             get_and_create_music_metadata(self)
+
+        if is_document(self.file.name):
+            from nas.utils.utils import extra_text_content
+            content = extra_text_content(self)
+            self.description = content
+            super().save()
 
     def delete(self, *args, **kwargs):
         folder = None

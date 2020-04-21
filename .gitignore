@@ -8,5 +8,7 @@ dump.rdb
 elasticsearch
 key.py
 passwd/
+share/
 ssl/
 user/
+node_modules/

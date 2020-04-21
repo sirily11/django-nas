@@ -1,4 +1,6 @@
 from typing import List, Tuple, Optional
+import textract
+from django.db.models import Q
 from mutagen.mp4 import MP4
 from mutagen.mp3 import EasyMP3 as MP3
 from mutagen.id3 import ID3
@@ -6,6 +8,8 @@ from nas.models import Folder, File, MusicMetaData
 import os
 from pathlib import PurePath
 from django.core.files.uploadedfile import SimpleUploadedFile, InMemoryUploadedFile
+
+from nas.utils.utils2 import VIDEO_EXT, AUDIO_EXT, is_document, DOCUMENT_EXT
 
 """
 This file contains utils which use models
@@ -213,18 +217,27 @@ def get_and_create_music_metadata(file: File):
             )
 
 
-def convert_pdf(file_path: str) -> str:
-    pass
-
-
-def convert_docx(file_path: str) -> str:
-    pass
-
-
 def extra_text_content(file: File):
-    filename, ext = os.path.splitext(file.file.path)
-    if ext == ".pdf":
-        pass
+    content = textract.process(file.file.path)
 
-    elif ext == ".docx":
-        pass
+    return content
+
+
+def extra_text_from_current_files() -> int:
+    """
+    Extra text from existing files
+    :return: number of files
+    """
+    queryset = None
+    for doc_ext in DOCUMENT_EXT:
+        if not queryset:
+            queryset = Q(file__icontains=doc_ext)
+        else:
+            queryset = queryset | Q(file__icontains=doc_ext)
+
+    files = File.objects.filter(queryset).all()
+    num = 0
+    for file in files:
+        file.save()
+        num += 1
+    return num

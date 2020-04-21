@@ -5,9 +5,9 @@ from django.core.files.uploadedfile import SimpleUploadedFile
 from django.test import TestCase
 from rest_framework.test import APIRequestFactory
 
-from nas.models import Folder, File as FileObj
+from nas.models import Folder, File as FileObj, File
 from nas.tests.const_params import TEST_DIR
-from nas.utils.utils import get_list_files, create_folders, has_parent
+from nas.utils.utils import get_list_files, create_folders, has_parent, extra_text_from_current_files
 from nas.utils.utils2 import is_video, is_audio
 from nas.views import FileViewSet
 from django.test import override_settings
@@ -177,6 +177,22 @@ class FolderUploadTest(TestCase):
 
 
 class UtilTest(TestCase):
+    def setUp(self) -> None:
+        with open('/test-files/test.mp3', 'rb') as f:
+            self.upload = SimpleUploadedFile('test.mp3', f.read())
+
+        with open('/test-files/test.m4a', 'rb') as f:
+            self.upload2 = SimpleUploadedFile('test.m4a', f.read())
+
+        with open('/test-files/test.pdf', 'rb') as f:
+            self.upload3 = SimpleUploadedFile('test.pdf', f.read())
+
+        with open('/test-files/testfile.txt', 'rb') as f:
+            self.upload4 = SimpleUploadedFile('testfile.txt', f.read())
+
+        with open('/test-files/testfile2.txt', 'rb') as f:
+            self.upload5 = SimpleUploadedFile('testfile2.txt', f.read())
+
     def test_is_video(self):
         p = "a.avi"
         self.assertTrue(is_video(p))
@@ -184,3 +200,49 @@ class UtilTest(TestCase):
     def test_is_audio(self):
         p = 'a.m4a'
         self.assertTrue(is_audio(p))
+
+    @override_settings(MEDIA_ROOT=TEST_DIR)
+    def test_file_text_extra(self):
+        file3 = FileObj.objects.create(file=self.upload3)
+        file4 = FileObj.objects.create(file=self.upload4)
+        file5 = FileObj.objects.create(file=self.upload5)
+
+        self.assertTrue(file3.description is not None)
+        self.assertTrue(file4.description is not None)
+        self.assertTrue(file5.description is not None)
+
+    @override_settings(MEDIA_ROOT=TEST_DIR)
+    def test_file_text_extra2(self):
+        file1 = FileObj.objects.create(file=self.upload)
+        file2 = FileObj.objects.create(file=self.upload2)
+        file3 = FileObj.objects.create(file=self.upload3)
+        file4 = FileObj.objects.create(file=self.upload4)
+        file5 = FileObj.objects.create(file=self.upload5)
+
+        num = extra_text_from_current_files()
+        self.assertEqual(num, 3)
+
+    @override_settings(MEDIA_ROOT=TEST_DIR)
+    def test_file_text_extra_api(self):
+        file1 = FileObj.objects.create(file=self.upload)
+        file2 = FileObj.objects.create(file=self.upload2)
+        file3 = FileObj.objects.create(file=self.upload3)
+        file4 = FileObj.objects.create(file=self.upload4)
+        file5 = FileObj.objects.create(file=self.upload5)
+
+        num = extra_text_from_current_files()
+        res = self.client.post('/api/update_file_description')
+        self.assertEqual(res.json()['number_updates'], 3)
+
+    @override_settings(MEDIA_ROOT=TEST_DIR)
+    def test_file_search(self):
+        factory = APIRequestFactory()
+        file1 = FileObj.objects.create(file=self.upload)
+        file2 = FileObj.objects.create(file=self.upload2)
+        file3 = FileObj.objects.create(file=self.upload3)
+        file4 = FileObj.objects.create(file=self.upload4)
+        file5 = FileObj.objects.create(file=self.upload5)
+        req = factory.get('/api/file?search=cnn',)
+        view = FileViewSet.as_view({'get': 'list'})
+        res = view(req)
+        self.assertEqual(len(res.data), 2)
