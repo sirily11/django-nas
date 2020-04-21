@@ -5,6 +5,8 @@ services:
     restart: always
     volumes:
       - ./database:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
     environment:
       POSTGRES_PASSWORD: django-nas
       POSTGRES_USER: django-nas
