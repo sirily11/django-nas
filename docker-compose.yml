@@ -1,5 +1,13 @@
 version: "3"
 services:
+  db:
+    image: postgres
+    restart: always
+    volumes:
+      - ./database:/var/lib/postgresql/data
+    environment:
+      POSTGRES_PASSWORD: django-nas
+      POSTGRES_USER: django-nas
   queue:
     build: ./docker
     image: server
@@ -19,6 +27,7 @@ services:
     command: "python manage.py test"
     depends_on:
       - queue
+      - db
 
   django:
     build: ./docker
@@ -34,6 +43,7 @@ services:
       - 80:80
     depends_on:
       - queue
+      - db
 
   django-makemigrations:
     build: ./docker
@@ -44,6 +54,7 @@ services:
 
     depends_on:
       - queue
+      - db
 
   django-migrate:
     build: ./docker
@@ -54,6 +65,7 @@ services:
 
     depends_on:
       - queue
+      - db
 
   redis:
     image: redis:latest

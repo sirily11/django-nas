@@ -12,3 +12,4 @@ share/
 ssl/
 user/
 node_modules/
+database/

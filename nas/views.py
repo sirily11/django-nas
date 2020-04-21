@@ -25,7 +25,8 @@ import django_rq
 import zipstream
 from django.http import StreamingHttpResponse
 from nas.utils.utils import get_and_create_music_metadata, extra_text_from_current_files
-from datetime import datetime, time
+from datetime import datetime
+from time import time
 
 
 class BookCollectionViewSet(viewsets.ModelViewSet):
