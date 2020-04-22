@@ -40,5 +40,24 @@ class FileTest(TestCase):
         file2 = FileObj.objects.create(file=SimpleUploadedFile(name="b", content=b'abc'))
         file3 = FileObj.objects.create(file=SimpleUploadedFile(name="c", content=b'abc'))
         url = reverse("download_multiple_files")
-        response = self.client.post(url, json.dumps([file.id, file2.id, file3.id]))
+        response = self.client.post(url, json.dumps([file.id, file2.id, file3.id]), content_type="application/json")
         self.assertEqual(response.status_code, 201)
+        ret_url = response.json()['download_url']
+        self.assertEqual(ret_url, f"http://testserver{url}?files={file.id}&files={file2.id}&files={file3.id}")
+        response = self.client.get(ret_url)
+        self.assertEqual(response.status_code, 200)
+
+    @override_settings(MEDIA_ROOT=TEST_DIR)
+    def test_download_multiple_files2(self):
+        """
+        Only one file
+        :return:
+        """
+        file = FileObj.objects.create(file=SimpleUploadedFile(name="a", content=b'abc'))
+        url = reverse("download_multiple_files")
+        response = self.client.post(url, json.dumps([file.id]), content_type="application/json")
+        self.assertEqual(response.status_code, 201)
+        ret_url = response.json()['download_url']
+        self.assertEqual(ret_url, f"http://testserver{url}?files={file.id}")
+        response = self.client.get(ret_url)
+        self.assertEqual(response.status_code, 200)
