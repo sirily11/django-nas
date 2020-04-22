@@ -7,6 +7,7 @@ from os.path import join, exists
 from django_rq import job
 from django.conf import settings
 from datetime import datetime
+from django.utils import timezone
 from nas.utils.utils2 import is_video, is_audio, get_filename, get_video_filename, is_document
 
 CHOICES = (("Image", "image"), ("Text", "txt"), ("File", "file"))
@@ -99,7 +100,23 @@ class File(models.Model):
     has_uploaded_to_cloud = models.BooleanField(default=False, null=True, blank=True)
 
     def filename(self):
-        return self.file.name
+        return os.path.basename(self.file.name)
+
+    def relative_filename(self, until: int) -> str:
+        """
+        Get relative filename. For example if a file path is a/b/c.pdf,
+        and until is a, this will return b/c.pdf
+        :param until:
+        :return:
+        """
+        parent = self.parent
+        filename = os.path.basename(self.file.name)
+        while parent:
+            if parent.id == until:
+                break
+            filename = os.path.join(parent.name, filename)
+            parent = parent.parent
+        return filename
 
     def __str__(self):
         return self.file.name
@@ -117,7 +134,7 @@ class File(models.Model):
         if self.parent:
             folder = Folder.objects.get(id=self.parent.id)
 
-        self.modified_at = datetime.now()
+        self.modified_at = timezone.now()
         super(File, self).save(*args, **kwargs)
 
         if folder:

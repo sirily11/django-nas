@@ -288,10 +288,31 @@ def download(request, folder):
 
     z = zipstream.ZipFile(mode='w', allowZip64=True)
     for file in files:
-        z.write(file.file.path, file.file.name)
+        relative_filename = file.relative_filename(folder)
+        z.write(file.file.path, relative_filename)
 
     response = StreamingHttpResponse(z, content_type='application/zip')
     zipfile_name = f"{folder.name}.zip"
+
+    # return as zipfile
+    response['Content-Disposition'] = f'attachment; filename={zipfile_name}'
+    return response
+
+
+@csrf_exempt
+def download_multiple_files(request):
+    import json
+    json_data = json.loads(request.body)['files']
+    files = []
+    for i in json_data:
+        files.append(File.objects.get(pk=i))
+
+    z = zipstream.ZipFile(mode='w', allowZip64=True)
+    for file in files:
+        z.write(file.file.path, file.filename())
+
+    response = StreamingHttpResponse(z, content_type='application/zip')
+    zipfile_name = f"grouped_files.zip"
 
     # return as zipfile
     response['Content-Disposition'] = f'attachment; filename={zipfile_name}'

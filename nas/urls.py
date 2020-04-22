@@ -15,6 +15,7 @@ urlpatterns = [
     path('api/', include(router.urls), name='api'),
     path('system/', views.SystemInfoView.as_view()),
     path('api/download/<int:folder>', views.download, name='download'),
+    path('api/download_multiple/', views.download_multiple_files, name='download_multiple_files'),
     path('api/music/', views.MusicView.as_view(), name='music'),
     path('api/music/album/', views.AlbumView.as_view(), name='album'),
     path('api/music/artist/', views.ArtistView.as_view(), name='artist'),
