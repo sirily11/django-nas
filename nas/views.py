@@ -158,7 +158,8 @@ class MusicView(generics.ListAPIView, generics.UpdateAPIView):
 
         num_music_metadata = MusicMetaData.objects.count()
         content = f"# Music Library has been updated\n\n"
-        content += f"User has request the rebuild index at {start_time}. And during this process, system has updated {len(self.get_queryset())} music's metadata. After this operation, the total number of music metadata is {num_music_metadata}. This update ended at {datetime.now()}\n\n"
+        content += f"User has request the rebuild index at {start_time}. " \
+            f"And during this process, system has updated {len(self.get_queryset())} music's metadata. After this operation, the total number of music metadata is {num_music_metadata}. This update ended at {datetime.now()}\n\n"
         content += f"Author: auto generated logs"
 
         Logs.objects.create(title="Updated Music Library", content=content, log_type="UPDATED", sender="Music View")
@@ -309,11 +310,17 @@ def download_multiple_files(request):
             query += f"files={i}&"
         url = request.build_absolute_uri(f"{reverse('download_multiple_files')}?{query[:-1]}")
         return JsonResponse(
-            data={"download_url": url}
+            data={"download_url": url},
+            status=201
         )
 
     files_index = request.GET.get("files")
-    files = [File.objects.get(pk=i) for i in files_index]
+    files = []
+    if files_index is list:
+        for i in files_index:
+            files.append(File.objects.get(id=i))
+    else:
+        files.append(File.objects.get(id=files_index))
     z = zipstream.ZipFile(mode='w', allowZip64=True)
     for file in files:
         z.write(file.file.path, file.filename())
