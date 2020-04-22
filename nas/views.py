@@ -301,12 +301,19 @@ def download(request, folder):
 
 @csrf_exempt
 def download_multiple_files(request):
-    import json
-    json_data = json.loads(request.body)['files']
-    files = []
-    for i in json_data:
-        files.append(File.objects.get(pk=i))
+    if request.method == "POST":
+        import json
+        json_data = json.loads(request.body)
+        query = ""
+        for i in json_data:
+            query += f"files={i}&"
+        url = request.build_absolute_uri(f"{reverse('download_multiple_files')}?{query[:-1]}")
+        return JsonResponse(
+            data={"download_url": url}
+        )
 
+    files_index = request.GET.get("files")
+    files = [File.objects.get(pk=i) for i in files_index]
     z = zipstream.ZipFile(mode='w', allowZip64=True)
     for file in files:
         z.write(file.file.path, file.filename())
