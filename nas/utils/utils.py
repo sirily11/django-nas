@@ -203,7 +203,8 @@ def get_and_create_music_metadata(file: File):
             metadata.genre = genre
             metadata.duration = duration
             metadata.album_artist = album_artist
-            metadata.lyrics = lyrics
+            if lyrics:
+                metadata.lyrics = lyrics
             try:
                 metadata.track = int(track)
             except:
