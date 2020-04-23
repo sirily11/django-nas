@@ -189,8 +189,9 @@ class MusicMetaData(models.Model):
     album_artist = models.TextField(blank=True, null=True, max_length=1024)
     year = models.CharField(default='2020', max_length=128)
     track = models.IntegerField(default=0)
+    lyrics = models.TextField(null=True, blank=True)
     genre = models.CharField(null=True, blank=True, max_length=128)
-    picture = models.FileField(upload_to='music-cover/%Y/%m/%d', null=True, blank=True)
+    picture = models.FileField(upload_to='music-cover/%Y/%m/%d', null=True, blank=True, max_length=10000)
     duration = models.IntegerField(blank=True, null=True)
     like = models.BooleanField(default=False)
 

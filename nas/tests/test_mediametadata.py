@@ -20,19 +20,21 @@ class MusicMetaDataTest(TestCase):
 
     @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_m4a_audio(self):
-        title, album, artist, year, genre, cover, duration, album_artist, track = \
+        title, album, artist, year, genre, cover, duration, album_artist, track, lyrics = \
             get_mp4_metadata("/test-files/test.m4a")
         self.assertEqual(title, "Carry On")
         self.assertEqual(album, 'Carry On (From the Original Motion Picture "Detective Pikachu") - Single')
         self.assertTrue("2019" in year)
         self.assertTrue(cover.size > 0)
+        self.assertEqual(lyrics, "Test lyrics")
 
     @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_mp3_audio(self):
-        title, album, artist, year, genre, cover, duration, album_artist, track = get_mp3_metadata(
+        title, album, artist, year, genre, cover, duration, album_artist, track, lyrics = get_mp3_metadata(
             "/test-files/test.mp3")
         self.assertEqual(year, "2019")
         self.assertTrue(cover.size > 0)
+        self.assertEqual(lyrics, "Test lyrics")
 
     @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_get_and_create(self):

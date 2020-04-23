@@ -28,9 +28,9 @@ class LogsSerializer(serializers.ModelSerializer):
 class MusicMetaDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = MusicMetaData
-        fields = ("id", "title", "album", "artist",
+        fields = ("id", "title", "album", "artist",'lyrics',
                   "year", "genre", "track",
-                  "picture", "duration", "file", "like", 'album_artist')
+                  "picture", "duration", "file", "like", 'album_artist', )
 
 
 class FileSerializer(serializers.ModelSerializer):
