@@ -1,0 +1,42 @@
+<page>
+    <container>
+        <header level="5">Django Nas指南</header>
+        <text>本指南由我的开源项目： json_screen生成。所有的文档均从服务器端获取之后生成手机客户端界面。</text>
+        <image data="/static/docs/images/image1.png" height="300">Django Nas 主界面</image>
+    </container>
+    <list-container>
+        <list-item>
+            <list-title>
+                <header level="6">概览</header>
+            </list-title>
+            <list-subtitle>
+                <text>关于功能的详细描述</text>
+            </list-subtitle>
+            <list-ending>
+                <link data="/static/docs/preview/preview.xml">阅读详情</link>
+            </list-ending>
+        </list-item>
+        <list-item>
+            <list-title>
+                <header level="6">功能详情</header>
+            </list-title>
+            <list-subtitle>
+                <text>关于功能的详细描述</text>
+            </list-subtitle>
+            <list-ending>
+                <link data="/static/docs/preview/preview.xml">阅读详情</link>
+            </list-ending>
+        </list-item>
+        <list-item>
+            <list-title>
+                <header level="6">注意事项</header>
+            </list-title>
+            <list-subtitle>
+                <text>关于功能的详细描述</text>
+            </list-subtitle>
+            <list-ending>
+                <link data="/static/docs/preview/preview.xml">阅读详情</link>
+            </list-ending>
+        </list-item>
+    </list-container>
+</page>

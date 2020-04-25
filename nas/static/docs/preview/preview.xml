@@ -1,0 +1,154 @@
+<pages>
+    <page>
+        <container>
+            <header level="5">使用概览</header>
+        </container>
+        <horizontal height="240">
+            <image data="/static/docs/images/image1.png" height="190">Django Nas主界面</image>
+            <image data="/static/docs/images/image2.png" height="190">Django Nas音乐界面</image>
+            <image data="/static/docs/images/image3.png" height="190">Django Nas文档界面</image>
+        </horizontal>
+        <container>
+            <text>Django Nas是一款基于Python Django 服务器的文件管理系统，它可以对文件进行存储，扫描音乐文件，并且进行文档编辑。它有以下特性：</text>
+        </container>
+        <list-container>
+            <list-item>
+                <list-title>
+                    <header level="6">完善的手机客户端</header>
+                </list-title>
+                <list-subtitle>
+                    <text>可以进行文件上传下载以及预览。可以对音乐进行播放和音乐原始数据的管理</text>
+                </list-subtitle>
+            </list-item>
+            <list-item>
+                <list-title>
+                    <header level="6">详尽的电脑客户端</header>
+                </list-title>
+                <list-subtitle>
+                    <text>可以进行文件上传下载以及预览。可以对音乐进行播放和音乐原始数据的管理</text>
+                </list-subtitle>
+            </list-item>
+        </list-container>
+        <container>
+            <text>以下是手机版与网页版支持与不支持的功能表格</text>
+            <table>
+                <header>功能对照表</header>
+                <column>
+                    <text>功能</text>
+                    <text>手机版</text>
+                    <text>网页版</text>
+                </column>
+                <row>
+                    <text>文件预览</text>
+                    <text>支持</text>
+                    <text>支持</text>
+                </row>
+                <row>
+                    <text>文件下载</text>
+                    <text>不支持</text>
+                    <text>支持</text>
+                </row>
+                <row>
+                    <text>文件上传</text>
+                    <text>支持</text>
+                    <text>支持</text>
+                </row>
+                <row>
+                    <text>文件批量下载</text>
+                    <text>不支持</text>
+                    <text>支持</text>
+                </row>
+                <row>
+                    <text>文件夹下载</text>
+                    <text>不支持</text>
+                    <text>支持</text>
+                </row>
+                <row>
+                    <text>视频预览</text>
+                    <text>支持（部分）</text>
+                    <text>支持</text>
+                </row>
+                <row>
+                    <text>音乐播放</text>
+                    <text>支持</text>
+                    <text>支持</text>
+                </row>
+                <row>
+                    <text>文档编辑</text>
+                    <text>支持</text>
+                    <text>支持</text>
+                </row>
+                <row>
+                    <text>音乐元数据编辑</text>
+                    <text>支持</text>
+                    <text>不支持</text>
+                </row>
+                <row>
+                    <text>音乐元数据获取</text>
+                    <text>不支持</text>
+                    <text>支持</text>
+                </row>
+                <row>
+                    <text>日志浏览</text>
+                    <text>支持</text>
+                    <text>不支持</text>
+                </row>
+                <row>
+                    <text>搜索</text>
+                    <text>支持</text>
+                    <text>支持</text>
+                </row>
+                <row>
+                    <text>创建文件夹/文档</text>
+                    <text>支持</text>
+                    <text>支持</text>
+                </row>
+                <row>
+                    <text>创建书籍</text>
+                    <text>支持</text>
+                    <text>支持</text>
+                </row>
+            </table>
+        </container>
+        <container>
+            <text>在用户安装好Docker后便可以直接在手机客户端上输入服务器端的地址，接下来系统将自动链接进入服务器获取文件。如果用户上传的是音乐文件，系统也将会在上传的同时对音乐文件的Metadata（元数据）进行提取。这其中包括：
+            </text>
+            <list>
+                <text>音乐作曲家/歌手</text>
+                <text>专辑作曲家/歌手</text>
+                <text>专辑封面</text>
+                <text>歌曲轨道号</text>
+                <text>歌词</text>
+                <text>分类</text>
+                <text>年代</text>
+            </list>
+            <text>这些数据一般会随着音乐文件一同附带（如果音乐是来自数字媒体商城如：iTunes，Google Play Music）。 倘若数据提供的不完整，抑或是数据不正确，用户方可在手机客户端进行修改（部分）。</text>
+            <image data="/static/docs/images/image4.png" height="400">手机版音乐App主界面</image>
+            <image data="/static/docs/images/image5.png" height="400">手机版音乐元数据修改界面</image>
+            <image data="/static/docs/images/image6.png" height="400">手机版音乐歌词界面</image>
+            <text>有关手机App使用详情请滑动至下一页</text>
+        </container>
+    </page>
+    <page>
+        <container>
+            <header level="6">手机App使用概览</header>
+            <text>本章将概述手机客户端的功能。</text>
+        </container>
+        <story>
+            <text>1. 创建文件夹以及编辑</text>
+            <text>2. 上传文件以及编辑</text>
+            <text>3. 创建文档以及编辑</text>
+        </story>
+        <container>
+            <quote>1. 创建以及编辑文件夹</quote>
+            <text>欲创建新的文件夹请先回到主菜单。</text>
+            <image data="/static/docs/images/mobile-1/1.png" height="300">第一步：单击屏幕右上角的加号</image>
+            <image data="/static/docs/images/mobile-1/2.png" height="300">第二步：单击创建文件夹菜单</image>
+            <image data="/static/docs/images/mobile-1/3.png" height="300">第三步：在弹出框中输入文件夹名称</image>
+            <image data="/static/docs/images/mobile-1/4.png" height="300">最终，你的文件夹将会出现在你的主屏幕上</image>
+            <text>如果想要编辑/删除/移动创建好的文件夹，可以按如下方式进行操作。</text>
+            <image data="/static/docs/images/mobile-1/5.png" height="300">拖动文件夹，从右向左移动，便会出现编辑以及删除按钮</image>
+            <image data="/static/docs/images/mobile-1/6.png" height="300">长按拖动文件夹图标并拖动到其他文件夹上即可移动文件夹。（若想拖动回上一级，可将文件夹移动到 parent folder字样处）</image>
+        </container>
+    </page>
+</pages>
