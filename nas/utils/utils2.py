@@ -4,7 +4,7 @@ from django.conf import settings
 
 AUDIO_EXT = ['.m4a', '.wav', '.mp3']
 VIDEO_EXT = ['.m4v', '.mov', '.m4a', '.wmv', '.mp4', '.avi', '.m3u8']
-DOCUMENT_EXT = ['.pdf', '.txt', '.docx', '.csv', '.epub', '.pptx', '.xls', 'xlsx', '.html']
+DOCUMENT_EXT = ['.pdf', '.txt', '.docx', '.csv', '.epub', '.pptx', '.xls', 'xlsx', '.html', '.srt']
 
 """
 This file contains utils which doesn't use model
