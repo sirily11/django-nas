@@ -27,6 +27,7 @@ from django.http import StreamingHttpResponse
 from nas.utils.utils import get_and_create_music_metadata, extra_text_from_current_files
 from datetime import datetime
 from time import time
+import webvtt
 
 
 class BookCollectionViewSet(viewsets.ModelViewSet):
@@ -160,7 +161,7 @@ class MusicView(generics.ListAPIView, generics.UpdateAPIView):
         content = f"# Music Library has been updated\n\n"
         content += f"User has request the rebuild index at {start_time}. " \
             f"And during this process, system has updated " \
-            f"{len( self.get_queryset())} music's metadata. " \
+            f"{len(self.get_queryset())} music's metadata. " \
             f"After this operation, the total number of " \
             f"music metadata is {num_music_metadata}. This update ended at {datetime.now()}\n\n"
         content += f"Author: auto generated logs"
@@ -279,9 +280,6 @@ def index(request):
         )
 
 
-
-
-
 @csrf_exempt
 def download(request, folder):
     if request.method == "POST":
@@ -337,6 +335,15 @@ def download_multiple_files(request):
     # return as zipfile
     response['Content-Disposition'] = f'attachment; filename={zipfile_name}'
     return response
+
+
+def convert_vtt_caption(request, file):
+    from nas.utils.utils2 import WebVTTWriter
+    f = File.objects.get(pk=file)
+    vtt = webvtt.from_srt(f.file.path)
+    captions = vtt.captions
+    content = WebVTTWriter().write(captions)
+    return JsonResponse(data={"content": content})
 
 
 @csrf_exempt

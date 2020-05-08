@@ -70,3 +70,16 @@ def get_video_filename(path, file_id) -> (str, str):
     name = f"{file_id}-{splitext(basename(path))[0]}.mp4"
     output_path = join(settings.MEDIA_ROOT, "transcode-video", name)
     return name, output_path
+
+
+class WebVTTWriter(object):
+
+    def write(self, captions):
+        content = 'WEBVTT\n'
+        for c in captions:
+            if c.identifier:
+                content += '\n' + c.identifier
+            content += '\n{} --> {}\n'.format(c.start, c.end)
+            for l in c.lines:
+                content += '{}\n'.format(l)
+        return content
