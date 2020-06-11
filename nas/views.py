@@ -1,3 +1,4 @@
+import json
 from typing import Optional
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.shortcuts import HttpResponse
@@ -160,10 +161,10 @@ class MusicView(generics.ListAPIView, generics.UpdateAPIView):
         num_music_metadata = MusicMetaData.objects.count()
         content = f"# Music Library has been updated\n\n"
         content += f"User has request the rebuild index at {start_time}. " \
-            f"And during this process, system has updated " \
-            f"{len(self.get_queryset())} music's metadata. " \
-            f"After this operation, the total number of " \
-            f"music metadata is {num_music_metadata}. This update ended at {datetime.now()}\n\n"
+                   f"And during this process, system has updated " \
+                   f"{len(self.get_queryset())} music's metadata. " \
+                   f"After this operation, the total number of " \
+                   f"music metadata is {num_music_metadata}. This update ended at {datetime.now()}\n\n"
         content += f"Author: auto generated logs"
 
         Logs.objects.create(title="Updated Music Library", content=content, log_type="UPDATED", sender="Music View")
@@ -278,7 +279,6 @@ def index(request):
             """,
             status=501,
         )
-
 
 
 @job

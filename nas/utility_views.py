@@ -1,3 +1,4 @@
+import json
 import os
 from time import time
 
@@ -115,3 +116,15 @@ def upload(request, file_index):
     else:
         return JsonResponse(status=404, data={"message": "file not found"})
     return JsonResponse(data={"status": "Ok"}, status=201)
+
+
+def update_file_content(request, pk):
+    file_content = request.body
+    file_content = json.loads(file_content)['content']
+    file = File.objects.get(pk=pk)
+    try:
+        with open(file.file.path, 'w') as f:
+            f.write(file_content)
+    except Exception as e:
+        return JsonResponse(data={"error": e}, status=500)
+    return JsonResponse(data={"status": "ok"}, status=200)

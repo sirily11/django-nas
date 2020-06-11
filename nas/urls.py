@@ -15,6 +15,7 @@ router.register(r'logs', views.LogsViewSet, basename="logs")
 urlpatterns = [
     path('api/', include(router.urls), name='api'),
     path('system/', views.SystemInfoView.as_view()),
+    path('api/update/file/<int:pk>', utility_views.update_file_content, name="update_file_content"),
     path('api/download/<int:folder>', utility_views.download, name='download'),
     path('api/download_multiple/', utility_views.download_multiple_files, name='download_multiple_files'),
     path('api/convert/caption/<int:file>', utility_views.convert_vtt_caption),

@@ -61,3 +61,13 @@ class FileTest(TestCase):
         self.assertEqual(ret_url, f"http://testserver{url}?files={file.id}")
         response = self.client.get(ret_url)
         self.assertEqual(response.status_code, 200)
+
+    @override_settings(MEDIA_ROOT=TEST_DIR)
+    def test_update_file_content(self):
+        file = FileObj.objects.create(file=SimpleUploadedFile(name="test.md", content=b'hello world'))
+        url = reverse("update_file_content", args=(file.pk,))
+        response = self.client.post(url, json.dumps({"content": "new content"}), content_type="application/json")
+        self.assertEqual(response.status_code, 200)
+        with open(file.file.path, 'r') as f:
+            content = f.read()
+            self.assertEqual(content, "new content")
