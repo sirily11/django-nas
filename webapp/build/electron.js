@@ -7,23 +7,27 @@ var mainWindow;
 var menu = electron_1.Menu.buildFromTemplate([
     {
         label: 'Menu'
-    }, {
+    },
+    {
         label: "File",
         submenu: [
             {
-                label: 'Log out', click: function () {
+                label: 'Log out',
+                click: function () {
                     if (mainWindow) {
                         mainWindow.webContents.send('logout');
                     }
                 }
             }, {
-                label: "Reload", click: function () {
+                label: "Reload",
+                click: function () {
                     if (mainWindow) {
                         mainWindow.reload();
                     }
                 }
             }, {
-                label: "Debug", click: function () {
+                label: "Debug",
+                click: function () {
                     if (mainWindow) {
                         mainWindow.webContents.openDevTools();
                     }

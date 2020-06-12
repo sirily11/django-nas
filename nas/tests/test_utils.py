@@ -22,6 +22,13 @@ class GetFilesByFolderTest(TestCase):
         self.sub_sub_folder = Folder.objects.create(name="sub_sub_a", parent=self.sub_folder)
         self.sub_sub_folder2 = Folder.objects.create(name="sub_sub_a", parent=self.sub_folder2)
 
+    def tearDown(self):
+        try:
+            shutil.rmtree(TEST_DIR)
+        except Exception as e:
+            print(e)
+
+    @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_basic(self):
         """
         Basic test without sub folder
@@ -31,6 +38,7 @@ class GetFilesByFolderTest(TestCase):
         files = get_list_files(self.base)
         self.assertEqual(len(files), 10)
 
+    @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_sub_folder(self):
         """
         Test with two sub-folders
@@ -42,6 +50,7 @@ class GetFilesByFolderTest(TestCase):
         files = get_list_files(self.base)
         self.assertEqual(len(files), 30)
 
+    @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_sub_sub_folder(self):
         """
         Test with two sub-folders
@@ -67,16 +76,19 @@ class FolderUploadTest(TestCase):
         except Exception as e:
             print(e)
 
+    @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_has_parent(self):
         path = "a/b/c.txt"
         has = has_parent(path)
         self.assertTrue(has)
 
+    @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_has_parent2(self):
         path = "c.txt"
         has = has_parent(path)
         self.assertFalse(has)
 
+    @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_create_folders(self):
         """
         Creat list of folders in root
@@ -88,6 +100,7 @@ class FolderUploadTest(TestCase):
         self.assertEqual(folder.parent.name, "a")
         self.assertEqual(folder.parent.parent, None)
 
+    @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_create_folders2(self):
         """
         Create list of folders where some of the folder already exist
@@ -100,6 +113,7 @@ class FolderUploadTest(TestCase):
         self.assertEqual(folder.parent, a)
         self.assertEqual(folder.parent.parent, None)
 
+    @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_create_folders2_2(self):
         """
         Create list of folders where some of the folder already exist
@@ -113,6 +127,7 @@ class FolderUploadTest(TestCase):
         self.assertEqual(folder.parent, a)
         self.assertEqual(folder.parent.parent, None)
 
+    @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_create_folders2_3(self):
         """
         Create list of folders where some of the folder already exist
@@ -125,6 +140,7 @@ class FolderUploadTest(TestCase):
         self.assertEqual(Folder.objects.filter(name='a').count(), 2)
         self.assertEqual(Folder.objects.filter(parent=a).count(), 2)
 
+    @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_create_folders3(self):
         """
         Create list of folders where base has folders but doesn't match
@@ -242,7 +258,7 @@ class UtilTest(TestCase):
         file3 = FileObj.objects.create(file=self.upload3)
         file4 = FileObj.objects.create(file=self.upload4)
         file5 = FileObj.objects.create(file=self.upload5)
-        req = factory.get('/api/file?search=cnn',)
+        req = factory.get('/api/file?search=cnn', )
         view = FileViewSet.as_view({'get': 'list'})
         res = view(req)
         self.assertEqual(len(res.data), 2)
