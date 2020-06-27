@@ -177,6 +177,13 @@ class File(models.Model):
             folder.save()
 
 
+class ImageMetaData(models.Model):
+    file = models.OneToOneField(File, on_delete=models.CASCADE,
+                                blank=True,
+                                null=True,
+                                related_name='image_metadata')
+
+
 class MusicMetaData(models.Model):
     file = models.OneToOneField(File, on_delete=models.CASCADE,
                                 blank=True,

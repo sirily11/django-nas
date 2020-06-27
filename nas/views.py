@@ -111,6 +111,10 @@ class FolderViewSet(viewsets.ModelViewSet):
             return Response(status=500)
 
 
+class PhotoView(viewsets.ModelViewSet):
+    pass
+
+
 class AlbumView(generics.ListAPIView):
     serializer_class = MusicMetaDataSerializer
     pagination_class = None
