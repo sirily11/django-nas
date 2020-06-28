@@ -366,11 +366,10 @@ class ImageGalleryView(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         images = self.get_queryset().all()
+        ImageMetaData.objects.all().delete()
         for image in images:
             metadata = get_image_metadata(image.file.path)
-            if image.image_metadata:
-                image.image_metadata.delete()
-            ImageMetaData.objects.create(file=image, data=metadata)
+            ImageMetaData.objects.update_or_create(file=image, data=metadata)
         return Response(status=201)
 
 
