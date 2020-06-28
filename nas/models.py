@@ -1,3 +1,4 @@
+from django.contrib.postgres.fields import JSONField
 from django.db import models
 from django.contrib.auth.models import User
 import django_rq
@@ -8,7 +9,9 @@ from django_rq import job
 from django.conf import settings
 from datetime import datetime
 from django.utils import timezone
-from nas.utils.utils2 import is_video, is_audio, get_filename, get_video_filename, is_document
+
+from nas.utils.image_utils import get_image_metadata
+from nas.utils.utils2 import is_video, is_audio, get_filename, get_video_filename, is_document, is_image
 
 CHOICES = (("Image", "image"), ("Text", "txt"), ("File", "file"))
 EVENT_TYPES = (("CREATED", "created"), ("DELETED", "deleted"),
@@ -144,6 +147,11 @@ class File(models.Model):
                 folder.size = size
             folder.save()
 
+        if is_image(self.file.path):
+            metadata = get_image_metadata(self.file.path)
+            if metadata:
+                ImageMetaData.objects.create(file=self, data=metadata)
+
         if is_video(self.file.path) and self.cover.name is None:
             # If file is video
             queue = django_rq.get_queue()
@@ -182,6 +190,7 @@ class ImageMetaData(models.Model):
                                 blank=True,
                                 null=True,
                                 related_name='image_metadata')
+    data = JSONField(null=True, blank=True)
 
 
 class MusicMetaData(models.Model):

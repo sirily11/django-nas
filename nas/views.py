@@ -1,6 +1,6 @@
 import json
 from typing import Optional
-from django.core.files.uploadedfile import InMemoryUploadedFile
+from django.core.files.uploadedfile import InMemoryUploadedFile, SimpleUploadedFile
 from django.shortcuts import HttpResponse
 from django.http import JsonResponse
 
@@ -283,6 +283,76 @@ def index(request):
             """,
             status=501,
         )
+
+
+class FileContentView(viewsets.ModelViewSet):
+    serializer_class = FileSerializer
+    queryset = File.objects.all()
+
+    def list(self, request, *args, **kwargs):
+        return Response(status=405, data=[])
+
+    def retrieve(self, request, *args, **kwargs):
+        file: File = self.get_object()
+        file_data = self.get_serializer(file)
+        if file and file.file:
+            with open(file.file.path, 'r') as f:
+                content = f.read()
+                data = dict(file_data.data)
+                data['file_content'] = content
+
+                return Response(status=201, data=data)
+        return Response(status=404)
+
+    def update(self, request, *args, **kwargs):
+        file_content = request.data.get('file_content')
+        file: File = self.get_object()
+        file_data = self.get_serializer(file)
+        try:
+            with open(file.file.path, 'w') as f:
+                f.write(file_content)
+        except Exception as e:
+            return Response(data={"error": e}, status=500)
+        data = dict(file_data.data)
+        data['file_content'] = file_content
+        return Response(data=data, status=200)
+
+    def create(self, request, *args, **kwargs):
+
+        body = request.data
+        name = body.get('filename')
+        file_content = body.get('file_content')
+        uploaded_file = SimpleUploadedFile(name, bytes(file_content, encoding='utf8'))
+        data = dict(request.data)
+        data['file'] = uploaded_file
+
+        serializer = self.get_serializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        headers = self.get_success_headers(serializer.data)
+
+        resp_data = dict(serializer.data)
+        resp_data['file_content'] = file_content
+
+        return Response(resp_data, status=201, headers=headers)
+
+
+class ImageGalleryView(viewsets.ModelViewSet):
+    queryset = File.objects.all()
+    serializer_class = FileSerializer
+
+    def get_queryset(self):
+        from nas.utils.utils2 import IMAGE_EXT
+        queryset = None
+
+        for ext in IMAGE_EXT:
+            files = File.objects.filter(file__contains=ext).order_by("file").all()
+            if not queryset:
+                queryset = files
+            else:
+                queryset = queryset | files
+
+        return super().get_queryset()
 
 
 @job

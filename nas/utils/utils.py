@@ -227,9 +227,11 @@ def get_and_create_music_metadata(file: File):
 
 
 def extra_text_content(file: File):
-    content = textract.process(file.file.path)
-
-    return content
+    try:
+        content = textract.process(file.file.path)
+        return content
+    except Exception as e:
+        return None
 
 
 def extra_text_from_current_files() -> int:

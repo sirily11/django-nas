@@ -2,6 +2,7 @@ import os
 from os.path import dirname, join, splitext, exists, basename
 from django.conf import settings
 
+IMAGE_EXT = ['.jpg', 'jpeg', '.png', '.bmp']
 AUDIO_EXT = ['.m4a', '.wav', '.mp3']
 VIDEO_EXT = ['.m4v', '.mov', '.m4a', '.wmv', '.mp4', '.avi', '.m3u8']
 DOCUMENT_EXT = ['.pdf', '.txt', '.docx', '.csv', '.epub', '.pptx', '.xls', 'xlsx', '.html', '.srt']
@@ -9,6 +10,18 @@ DOCUMENT_EXT = ['.pdf', '.txt', '.docx', '.csv', '.epub', '.pptx', '.xls', 'xlsx
 """
 This file contains utils which doesn't use model
 """
+
+
+def is_image(path: str) -> bool:
+    """
+      Whether a file is image
+      :param path:
+      :return:
+      """
+    filename, file_ext = os.path.splitext(path)
+    if file_ext.lower() in IMAGE_EXT:
+        return True
+    return False
 
 
 def is_document(path: str) -> bool:

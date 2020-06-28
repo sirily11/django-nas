@@ -1,6 +1,6 @@
 from rest_framework.response import Response
 
-from .models import File, Folder, Document, MusicMetaData, Logs, BookCollection
+from .models import File, Folder, Document, MusicMetaData, Logs, BookCollection, ImageMetaData
 from django.contrib.auth.models import User
 from rest_framework import serializers
 from rest_framework import pagination
@@ -28,22 +28,29 @@ class LogsSerializer(serializers.ModelSerializer):
 class MusicMetaDataSerializer(serializers.ModelSerializer):
     class Meta:
         model = MusicMetaData
-        fields = ("id", "title", "album", "artist",'lyrics',
+        fields = ("id", "title", "album", "artist", 'lyrics',
                   "year", "genre", "track",
-                  "picture", "duration", "file", "like", 'album_artist', )
+                  "picture", "duration", "file", "like", 'album_artist',)
+
+
+class ImageMetaDataSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ImageMetaData
+        fields = ("file", "data")
 
 
 class FileSerializer(serializers.ModelSerializer):
     user = UserSerializer(source="owner", read_only=True)
     filename = serializers.ReadOnlyField()
     music_metadata = MusicMetaDataSerializer(source="metadata", read_only=True, many=False)
+    image_metadata = ImageMetaDataSerializer(read_only=True, many=False)
 
     class Meta:
         model = File
         fields = ("id", "created_at", "parent",
                   "description", "user", "size",
                   "modified_at", "file", "object_type", "filename", "transcode_filepath", 'cover',
-                  'has_uploaded_to_cloud', "music_metadata")
+                  'has_uploaded_to_cloud', "music_metadata", "image_metadata")
 
 
 class DocumentSerializer(serializers.ModelSerializer):

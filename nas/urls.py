@@ -11,6 +11,8 @@ router.register(r'document', views.DocumentViewSet, base_name='documents')
 router.register(r'music-metadata', views.MusicMetaDataViewSet, base_name="music-metadata")
 router.register(r'book-collection', views.BookCollectionViewSet, basename="books")
 router.register(r'logs', views.LogsViewSet, basename="logs")
+router.register(r'gallery', views.ImageGalleryView, basename='gallery')
+router.register(r'file-content', views.FileContentView, basename='file-content')
 
 urlpatterns = [
     path('api/', include(router.urls), name='api'),

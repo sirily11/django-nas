@@ -5,7 +5,7 @@ from django.test import TestCase
 from django.urls import reverse
 from rest_framework.test import APIRequestFactory
 
-from nas.models import File as FileObj, MusicMetaData, Folder
+from nas.models import File as FileObj, MusicMetaData, Folder, ImageMetaData
 from nas.tests.const_params import TEST_DIR
 from nas.utils.utils import get_mp3_metadata, get_mp4_metadata
 from nas.views import MusicView, AlbumView, ArtistView
@@ -71,3 +71,10 @@ class FileTest(TestCase):
         with open(file.file.path, 'r') as f:
             content = f.read()
             self.assertEqual(content, "new content")
+
+    @override_settings(MEDIA_ROOT=TEST_DIR)
+    def test_get_image_metadata(self):
+        with open('/test-files/test_image.jpg', 'rb') as f:
+            upload_file = SimpleUploadedFile('test_image.jpg', f.read())
+            FileObj.objects.create(file=upload_file)
+            self.assertEqual(ImageMetaData.objects.count(), 1)
