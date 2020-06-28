@@ -322,17 +322,23 @@ class FileContentView(viewsets.ModelViewSet):
         body = request.data
         name = body.get('filename')
         file_content = body.get('file_content')
+        file_content = file_content if file_content else "None"
         uploaded_file = SimpleUploadedFile(name, bytes(file_content, encoding='utf8'))
         data = dict(request.data)
         data['file'] = uploaded_file
-
         serializer = self.get_serializer(data=data)
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
-        headers = self.get_success_headers(serializer.data)
-
         resp_data = dict(serializer.data)
         resp_data['file_content'] = file_content
+        # clear file content if original content is empty
+        if file_content == "None":
+            file: File = serializer.instance
+            with open(file.file.path, 'w') as f:
+                f.write("")
+                resp_data['file_content'] = ""
+
+        headers = self.get_success_headers(serializer.data)
 
         return Response(resp_data, status=201, headers=headers)
 

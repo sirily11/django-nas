@@ -33,6 +33,18 @@ class FileTest(TestCase):
         self.assertTrue(File.objects.count(), 1)
 
     @override_settings(MEDIA_ROOT=TEST_DIR)
+    def test_create_file_content2(self):
+        # with empty file content
+        factory = APIRequestFactory()
+        view = FileContentView.as_view({'post': 'create'})
+        request = factory.post('/files/', {
+            "filename": "Test",
+        })
+        response = view(request)
+        self.assertEqual(response.status_code, 201)
+        self.assertTrue(File.objects.count(), 1)
+
+    @override_settings(MEDIA_ROOT=TEST_DIR)
     def test_get_file_content(self):
         file = FileObj.objects.create(file=SimpleUploadedFile(name="c", content=b'abc'))
 

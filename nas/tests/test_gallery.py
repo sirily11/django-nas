@@ -35,3 +35,24 @@ class TestGallery(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertTrue(len(response.data['results']), 2)
+
+    @override_settings(MEDIA_ROOT=TEST_DIR)
+    def test_list_images2(self):
+        """
+        Create document and set collection
+        :return:
+        """
+        with open('/test-files/test_image.jpg', 'rb') as f:
+            upload_file = SimpleUploadedFile('test_image.jpg', f.read())
+            File.objects.create(file=upload_file)
+            File.objects.create(file=upload_file)
+
+        File.objects.create(file=SimpleUploadedFile('test_file.txt', b'hello'))
+
+        factory = APIRequestFactory()
+        view = ImageGalleryView.as_view({"get": "list"})
+        request = factory.get('/gallery')
+        response = view(request)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertTrue(len(response.data['results']), 2)
