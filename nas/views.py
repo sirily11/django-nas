@@ -1,6 +1,7 @@
 import json
 from typing import Optional
 from django.core.files.uploadedfile import InMemoryUploadedFile, SimpleUploadedFile
+from django.db.models import Q
 from django.shortcuts import HttpResponse
 from django.http import JsonResponse
 
@@ -9,7 +10,7 @@ from .serializers import FolderSerializer, \
     FileSerializer, UserSerializer, FolderBasicSerializer, DocumentSerializer, \
     DocumentAbstractSerializer, NumPagePagination, MusicMetaDataSerializer, \
     LogsSerializer, BookCollectionSerializer, BookCollectionDetailSerializer
-from .models import Folder, File, Document, MusicMetaData, Logs, BookCollection
+from .models import Folder, File, Document, MusicMetaData, Logs, BookCollection, ImageMetaData
 from rest_framework import viewsets
 from django.contrib.auth.models import User
 from rest_framework.response import Response
@@ -29,6 +30,8 @@ from nas.utils.utils import get_and_create_music_metadata, extra_text_from_curre
 from datetime import datetime
 from time import time
 import webvtt
+
+from .utils.image_utils import get_image_metadata
 
 
 class BookCollectionViewSet(viewsets.ModelViewSet):
@@ -352,13 +355,23 @@ class ImageGalleryView(viewsets.ModelViewSet):
         queryset = None
 
         for ext in IMAGE_EXT:
-            files = File.objects.filter(file__contains=ext).order_by("file").all()
+            files = File.objects.filter(Q(file__contains=ext) | Q(file__contains=ext.upper())).all()
             if not queryset:
                 queryset = files
             else:
                 queryset = queryset | files
 
-        return super().get_queryset()
+        queryset = queryset.order_by("image_metadata__data__datetime")
+        return queryset
+
+    def update(self, request, *args, **kwargs):
+        images = self.get_queryset().all()
+        for image in images:
+            metadata = get_image_metadata(image.file.path)
+            if image.image_metadata:
+                image.image_metadata.delete()
+            ImageMetaData.objects.create(file=image, data=metadata)
+        return Response(status=201)
 
 
 @job

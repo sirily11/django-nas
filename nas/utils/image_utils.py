@@ -28,10 +28,12 @@ def get_image_metadata(path: str) -> dict:
                              'subject_area', 'subsec_time_digitized', 'subsec_time_original', 'white_balance',
                              'x_resolution', 'y_resolution']:
                     try:
+                        data = getattr(image_metadata, info)
                         if isinstance(getattr(image_metadata, info), tuple):
-                            ret_data[info] = list(getattr(image_metadata, info))
+                            ret_data[info] = list(data)
                         else:
-                            ret_data[info] = getattr(image_metadata, info)
+                            data: str
+                            ret_data[info] = data.replace("\u0000", '')
                     except:
                         pass
         except Exception as e:
