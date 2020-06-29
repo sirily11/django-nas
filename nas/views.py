@@ -357,7 +357,7 @@ class ImageGalleryView(viewsets.ModelViewSet):
         for ext in IMAGE_EXT:
             files = File.objects\
                 .filter(Q(file__contains=ext) | Q(file__contains=ext.upper()))\
-                .exclude(image_metadata__isnull=True)\
+                .exclude(image_metadata__isnull=False)\
                 .all()
 
             if not queryset:
