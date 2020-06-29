@@ -355,13 +355,17 @@ class ImageGalleryView(viewsets.ModelViewSet):
         queryset = None
 
         for ext in IMAGE_EXT:
-            files = File.objects.filter(Q(file__contains=ext) | Q(file__contains=ext.upper())).all()
+            files = File.objects\
+                .filter(Q(file__contains=ext) | Q(file__contains=ext.upper()))\
+                .exclude(image_metadata__isnull=True)\
+                .all()
+
             if not queryset:
                 queryset = files
             else:
                 queryset = queryset | files
 
-        queryset = queryset.order_by("image_metadata__data__datetime")
+        queryset = queryset.order_by("-image_metadata__data__datetime")
         return queryset
 
     def update(self, request, *args, **kwargs):
