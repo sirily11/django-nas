@@ -355,9 +355,9 @@ class ImageGalleryView(viewsets.ModelViewSet):
         queryset = None
 
         for ext in IMAGE_EXT:
-            files = File.objects\
-                .filter(Q(file__contains=ext) | Q(file__contains=ext.upper()))\
-                .exclude(image_metadata__data__isnull=True)\
+            files = File.objects \
+                .filter(Q(file__contains=ext) | Q(file__contains=ext.upper())) \
+                .exclude(image_metadata__data__isnull=True) \
                 .all()
 
             if not queryset:
@@ -370,10 +370,11 @@ class ImageGalleryView(viewsets.ModelViewSet):
 
     def update(self, request, *args, **kwargs):
         images = self.get_queryset().all()
-        ImageMetaData.objects.all().delete()
         for image in images:
             metadata = get_image_metadata(image.file.path)
-            ImageMetaData.objects.update_or_create(file=image, data=metadata)
+            if ImageMetaData.objects.filter(file=image).exists():
+                ImageMetaData.objects.filter(file=image).delete()
+            ImageMetaData.objects.create(file=image, data=metadata)
         return Response(status=201)
 
 

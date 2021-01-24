@@ -30,11 +30,20 @@ services:
     depends_on:
       - queue
       - db
+  web:
+    image: nginx
+    volumes:
+      - ./templates:/etc/nginx/templates
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf
+    ports:
+      - "8080:80"
+    environment:
+      - NGINX_PORT=80
 
   django:
     build: ./docker
     image: server
-    container_name: django
+    container_name: django-nas
     volumes:
       - ./:/usr/local/django_nas
       - ./test-files:/test-files
