@@ -298,17 +298,17 @@ class FileContentView(viewsets.ModelViewSet):
     def retrieve(self, request, *args, **kwargs):
         file: File = self.get_object()
         file_data = self.get_serializer(file)
+        try:
+            if file and file.file:
+                with open(file.file.path, 'r') as f:
+                    content = f.read()
+                    data = dict(file_data.data)
+                    data['file_content'] = content
 
-        if file and file.file:
-            with open(file.file.path, 'rb') as f:
-                content = f.read()
-                data = dict(file_data.data)
-                data['file_content'] = content
+                    return Response(status=201, data=data)
+        except Exception as e:
 
-                return Response(status=201, data=data)
-        return Response(status=201)
-
-
+            return Response(status=500, data={"error": str(e)})
 
     def update(self, request, *args, **kwargs):
         file_content = request.data.get('file_content')
