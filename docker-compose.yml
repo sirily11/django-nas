@@ -60,7 +60,7 @@ services:
             python manage.py migrate &&
             python manage.py runserver 0.0.0.0:80"
     ports:
-      - 80:80
+      - 8080:80
     depends_on:
       - queue
       - db
