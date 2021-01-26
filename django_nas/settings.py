@@ -204,6 +204,8 @@ LANGUAGE_CODE = 'en-us'
 
 TIME_ZONE = 'UTC'
 
+UNICODE_JSON = True
+
 USE_I18N = True
 
 USE_L10N = True
