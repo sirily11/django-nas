@@ -307,7 +307,7 @@ class FileContentView(viewsets.ModelViewSet):
 
                     return Response(status=201, data=data)
         except Exception as e:
-            return Response(status=500)
+            return Response(status=500, exception=e)
 
     def update(self, request, *args, **kwargs):
         file_content = request.data.get('file_content')
