@@ -300,7 +300,7 @@ class FileContentView(viewsets.ModelViewSet):
         file_data = self.get_serializer(file)
 
         if file and file.file:
-            with open(file.file.path, 'r') as f:
+            with open(file.file.path, 'rb') as f:
                 content = f.read()
                 data = dict(file_data.data)
                 data['file_content'] = content
