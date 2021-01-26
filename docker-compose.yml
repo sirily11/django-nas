@@ -30,13 +30,9 @@ services:
     depends_on:
       - queue
       - db
-  logging:
-    driver: "json-file"
-    options:
-      max-size: 10m
-      max-file: "3"
-      labels: "production_status"
-      env: "os"
+    logging:
+      driver: "json-file"
+
 
   web:
     image: nginx
@@ -66,12 +62,6 @@ services:
       - db
     logging:
       driver: "json-file"
-      options:
-        max-size: 10m
-        max-file: "3"
-        labels: "production_status"
-        env: "os"
-
 
   django-makemigrations:
     build: ./docker
@@ -101,3 +91,4 @@ services:
       replicas: 1
     volumes:
       - ./data:/data
+
