@@ -300,15 +300,22 @@ class FileContentView(viewsets.ModelViewSet):
         file_data = self.get_serializer(file)
         try:
             if file and file.file:
-                with open(file.file.path, 'r') as f:
+                with open(file.file.path, 'rb') as f:
                     content = f.read()
                     data = dict(file_data.data)
                     data['file_content'] = content
 
                     return Response(status=201, data=data)
-        except Exception as e:
+        except UnicodeDecodeError as e:
+            try:
+                with open(file.file.path, 'r', encoding='gb18030') as f:
+                    content = f.read()
+                    data = dict(file_data.data)
+                    data['file_content'] = content
 
-            return Response(status=500, data={"error": str(e)})
+                    return Response(status=201, data=data)
+            except Exception as e:
+                return Response(status=500, data={"error": str(e)})
 
     def update(self, request, *args, **kwargs):
         file_content = request.data.get('file_content')
