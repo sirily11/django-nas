@@ -29,7 +29,7 @@ s3transfer==0.3.2
 sqlparse==0.3.0
 typed-ast==1.4.0
 typing-extensions==3.7.4.1
-urllib3==1.25.7
+urllib3==1.25.8
 zipstream-new==1.1.7
 django-dynamic-preferences==1.8.1
 mutagen==1.44.0
